@@ -20,15 +20,15 @@ import com.jcoding.lionsweihnachtskalender.data.CalendarData
 fun CustomItem(calendarData: CalendarData) {
     Row(
         modifier = Modifier
-            .background(Color.LightGray)
+            .background(MaterialTheme.colorScheme.primaryContainer)
             .fillMaxWidth()
-            .padding(24.dp),
+            .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text(
             text = "${calendarData.number}",
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
             fontWeight = FontWeight.Bold
         )
         Text(

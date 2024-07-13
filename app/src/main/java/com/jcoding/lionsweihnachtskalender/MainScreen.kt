@@ -58,6 +58,12 @@ fun MainScreen() {
             navController = navController
         )
     }
+
+
+    fun getPaddingValues() : PaddingValues {
+        return paddingSettingsMain
+    }
+
 }
 
 
@@ -112,3 +118,4 @@ fun RowScope.AddItem (
         }
     )
 }
+

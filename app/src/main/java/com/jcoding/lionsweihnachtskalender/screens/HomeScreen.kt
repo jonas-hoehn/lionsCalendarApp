@@ -6,7 +6,6 @@ import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -59,10 +58,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.jcoding.lionsweihnachtskalender.MainScreen
 import com.jcoding.lionsweihnachtskalender.R
 import com.jcoding.lionsweihnachtskalender.data.CalendarData
 import com.jcoding.lionsweihnachtskalender.repository.CalendarRepository
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,10 +71,12 @@ fun HomeScreen() {
     val scrollBehaviorTopBar = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     val scrollBehaviorBottomNavigation = NavigationBarDefaults.windowInsets
 
+
+
+
     val listState = rememberLazyListState()
 // The FAB is initially expanded. Once the first visible item is past the first item we
 // collapse the FAB. We use a remembered derived state to minimize unnecessary compositions.
-    val expandedFab by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
 
 
     Scaffold(
@@ -112,14 +113,11 @@ fun HomeScreen() {
                 scrollBehavior = scrollBehaviorTopBar
             )
         },
-       // containerColor = MaterialTheme.colorScheme.primaryContainer
-
 
     ) { innerPadding ->
 
         GreetingsSection(innerPadding)
         ManualNumber(innerPadding)
-        EFABmain(innerPadding)
 
 
     }
@@ -215,6 +213,15 @@ fun ManualNumber(paddingValues: PaddingValues) {
             )
         )
 
+        ExtendedFloatingActionButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp),
+            onClick = { /* do something */ },
+            icon = { Icon(Icons.Filled.DocumentScanner, "Localized description") },
+            text = { Text(text = "Scan the number") },
+        )
+
     }
     
 
@@ -233,22 +240,6 @@ private fun addCalendar(text: String, context: Context) {
     }
 }
 
-@Composable
-fun EFABmain(paddingValues: PaddingValues) {
-
-    val mainScreen = MainScreen()
-
-        ExtendedFloatingActionButton(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxWidth()
-                .padding(12.dp),
-            onClick = { /* do something */ },
-            icon = { Icon(Icons.Filled.DocumentScanner, "Localized description") },
-            text = { Text(text = "Scan the number") },
-        )
-
-}
 
 @Composable
 fun GreetingsSection(paddingValues: PaddingValues) {

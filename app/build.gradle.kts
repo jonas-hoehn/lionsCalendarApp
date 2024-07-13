@@ -74,4 +74,7 @@ dependencies {
     //Navigation Compose
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.material.icons.extended.android)
+
+    // Camera
+
 }
