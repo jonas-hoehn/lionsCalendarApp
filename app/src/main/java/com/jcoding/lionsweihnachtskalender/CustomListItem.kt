@@ -32,10 +32,11 @@ fun CustomItem(calendarData: CalendarData) {
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = calendarData.scanned.toString(),
+            text = if (calendarData.scanned) "Eingelöst" else "Nicht eingelöst",
             color = Color.Black,
             fontWeight = FontWeight.Normal
         )
+        Text(text = "Custom Item")
     }
 }
 

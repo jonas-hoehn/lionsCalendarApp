@@ -48,10 +48,10 @@ fun MainScreen() {
 
     var paddingSettingsMain : PaddingValues by remember { mutableStateOf(PaddingValues()) }
 
+
     val navController = rememberNavController()
     Scaffold (
         bottomBar = {BottomBar(navController = navController)   },
-        contentWindowInsets = contentWindowInsets,
     ){ innerPadding ->
         paddingSettingsMain = innerPadding
         BottomNavGraph(
