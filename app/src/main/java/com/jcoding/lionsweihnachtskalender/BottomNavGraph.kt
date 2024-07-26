@@ -1,5 +1,6 @@
 package com.jcoding.lionsweihnachtskalender
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -10,7 +11,7 @@ import com.jcoding.lionsweihnachtskalender.screens.LibraryScreen
 import com.jcoding.lionsweihnachtskalender.screens.SettingsScreen
 
 @Composable
-fun BottomNavGraph(navController: NavHostController) {
+fun BottomNavGraph(navController: NavHostController, innerPadding: PaddingValues) {
     NavHost(
         navController = navController,
         startDestination = BottomBarScreen.Home.route

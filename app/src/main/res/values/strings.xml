@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">LIONS Weihnachtskalender</string>
-    <string name="scan_input">Scan input</string>
+    <string name="scan_input">Kamera Eingabe</string>
+    <string name="manual_input">Manuelle Eingabe</string>
 </resources>

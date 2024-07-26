@@ -3,18 +3,11 @@
 package com.jcoding.lionsweihnachtskalender.screens
 
 import android.content.Context
-import android.graphics.Color
 import android.util.Log
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageProxy
-import androidx.camera.view.LifecycleCameraController
-import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -22,56 +15,40 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Block
-import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Dialpad
 import androidx.compose.material.icons.filled.DocumentScanner
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBar
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -83,19 +60,12 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
-import com.example.compose.LIONSWeihnachtskalenderTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionState
-import com.google.accompanist.permissions.rememberPermissionState
-import com.jcoding.lionsweihnachtskalender.BottomBarScreen
-import com.jcoding.lionsweihnachtskalender.CustomItem
 import com.jcoding.lionsweihnachtskalender.MainScreen
 import com.jcoding.lionsweihnachtskalender.R
+import com.jcoding.lionsweihnachtskalender.camera.CameraMangement
 import com.jcoding.lionsweihnachtskalender.data.CalendarData
 import com.jcoding.lionsweihnachtskalender.repository.CalendarRepository
 import java.util.Locale
@@ -105,18 +75,44 @@ import java.util.Locale
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
 
-    Column (modifier) {
-        Spacer(Modifier.height(16.dp))
-        LogoBar(Modifier.padding(horizontal = 16.dp))
-        Spacer(Modifier.height(16.dp))
-        GreetingsSection(paddingValues = PaddingValues())
-        Spacer(Modifier.height(16.dp))
-        HomeSection(title = R.string.scan_input){
-            // Implement Camera handling
-        }
+    var openCameraStateChange by remember {
+        mutableStateOf(false)
     }
 
-}
+
+        Column (modifier) {
+            Spacer(Modifier.height(16.dp))
+            LogoBar(Modifier.padding(horizontal = 16.dp))
+            Spacer(Modifier.height(16.dp))
+            GreetingsSection(paddingValues = PaddingValues())
+            Spacer(Modifier.height(16.dp))
+
+            Spacer(Modifier.height(16.dp))
+
+            Box(
+                modifier = Modifier
+                    .padding(start = 16.dp, end = 16.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.secondaryContainer),
+                contentAlignment = Alignment.Center
+            ){
+                HomeSection(title = R.string.manual_input){
+                    InputHandling(openCameraStateChange) { newState ->
+                        openCameraStateChange = newState
+                    }
+
+                }
+            }
+
+        }
+
+    // Conditionally display MainContent based on state
+    if (openCameraStateChange) {
+        CameraMangement(modifier.fillMaxSize()){
+            openCameraStateChange = false
+        }
+    }}
+
 
 
 
@@ -177,126 +173,23 @@ fun LogoBar(
 
 
 // CAMERA STUFF
-
-
-/*@Composable
-fun MainContent(hasPermission: Boolean, onRequestPermission: () -> Unit) {
-
-        if (hasPermission) {
-            // If we have the permission, show the camera
-            Text("Camera content")
-            CameraScreen()
-        } else {
-            // If we do not have the permission, show the rationale
-            Text("Camera permission required")
-            NoPermissionScreen(onRequestPermission)
-        }
-
-
-}*/
-
-/*@Composable
-fun CameraScreen(){
-    CameraContent()
-}
-
-@Composable
-private fun CameraContent() {
-
-    val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val cameraController = remember { LifecycleCameraController(context) }
-
-    Scaffold (modifier = Modifier
-        .fillMaxSize(),
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp),
-                onClick = {
-                    val mainExecutor = ContextCompat.getMainExecutor(context)
-                    cameraController.takePicture(mainExecutor, object : ImageCapture.OnImageCapturedCallback() {
-                        override fun onCaptureSuccess(image: ImageProxy) {
-                            super.onCaptureSuccess(image)
-                            image.toString()
-                        }
-                    })
-                },
-                icon = { Icon(Icons.Filled.DocumentScanner, "Localized description") },
-                text = { Text(text = "Foto machen") },
-            )
-        }
-    ){ paddingValues ->
-            AndroidView(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                factory = { context ->
-                    PreviewView(context).apply {
-                        layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                        setBackgroundColor(Color.BLACK)
-                        scaleType = PreviewView.ScaleType.FILL_START
-                    }.also { previewView ->
-                        previewView.controller = cameraController
-                        cameraController.bindToLifecycle(lifecycleOwner)
-                    }
-                }
-            ){
-
-            }
-    }
-}
-
-@Composable
-fun NoPermissionScreen(onRequestPermission: () -> Unit) {
-    Column (
-        modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text("Camera permission is required to continue")
-        Button(
-            onClick = onRequestPermission,
-            Modifier.padding(top = 16.dp),
-        ) {
-            Icon(imageVector = Icons.Default.CameraAlt, contentDescription = "Camera")
-            Text(
-                "Grant permission",
-                Modifier.padding(start = 16.dp)
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun NoPermissionPrev() {
-    NoPermissionScreen {
-
-    }
-}
-
-
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun ScanTheContent(
-    modifier: Modifier = Modifier,
+fun InputHandling(
+    openCameraStateChange: Boolean,
+    onCameraStateChanged: (Boolean) -> Unit,
 ) {
     Column (
         modifier = Modifier
             .padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
         var text by remember {
             mutableStateOf("")
         }
 
-        var openCameraStateChange by remember {
-            mutableStateOf(false)
-        }
+
 
         val paddingValues = PaddingValues()
         val cameraPermissionState = rememberLauncherForActivityResult(
@@ -305,12 +198,7 @@ fun ScanTheContent(
             //Handle permission result if needed
         }
 
-        // Conditionally display MainContent based on state
-        if (openCameraStateChange) {
-            CameraScreen()
-        }else{
-           // NoPermissionScreen(onRequestPermission)
-        }
+
 
         // possible other Composables
 
@@ -339,7 +227,7 @@ fun ScanTheContent(
             singleLine = true,
             maxLines = 1,
             leadingIcon = {
-                IconButton(onClick = { /*TODO*/ }) {
+                IconButton(onClick = {}) {
                     Icon(
                         imageVector = Icons.Filled.Dialpad,
                         contentDescription = "Numbers Icon"
@@ -349,7 +237,7 @@ fun ScanTheContent(
             trailingIcon = {
                 if(text.length == maxChar){
                     IconButton(onClick = {
-                        addCalendar(text = text, context = context)
+                        AddCalendar(text = text, context = context)
 
 
                     }) {
@@ -377,7 +265,7 @@ fun ScanTheContent(
             ),
             keyboardActions = KeyboardActions(
                 onDone = {
-                    addCalendar(text = text, context = context)
+                    AddCalendar(text = text, context = context)
                     Log.d("ImeAction", "clicked")
                 }
             )
@@ -388,7 +276,7 @@ fun ScanTheContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp),
-            onClick = { openCameraStateChange = true }, // Trigger state change
+            onClick = { onCameraStateChanged (!openCameraStateChange) }, // Trigger state change
             icon = { Icon(Icons.Filled.DocumentScanner, "Localized description") },
             text = { Text(text = "Kamera öffnen") },
         )
@@ -396,10 +284,7 @@ fun ScanTheContent(
     }
 }
 
-*/
-
-
-private fun addCalendar(text: String, context: Context) {
+private fun AddCalendar(text: String, context: Context) {
     Log.d("Trailing Icon", "Clicked")
     //Toast.makeText(context, "Trailing Icon clicked", Toast.LENGTH_LONG).show()
     val calendarData = CalendarData(text.toInt(), true)
