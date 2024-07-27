@@ -28,7 +28,9 @@ fun BottomNavGraph(
 
         composable(route = BottomBarScreen.Library.route){
             showBottomBar.value = true
-            LibraryScreen()
+            LibraryScreen {
+                navController.navigate(Destinations.REPORT_ROUTE)
+            }
         }
 
         composable(route = BottomBarScreen.Settings.route){

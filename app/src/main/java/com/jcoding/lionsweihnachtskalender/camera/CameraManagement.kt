@@ -12,24 +12,33 @@ import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Cameraswitch
 import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -37,22 +46,28 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jcoding.lionsweihnachtskalender.CameraPreview
 import com.jcoding.lionsweihnachtskalender.data.MainCameraViewModel
+import com.jcoding.lionsweihnachtskalender.overview.OverviewScreen
 import com.jcoding.lionsweihnachtskalender.screens.PhotoBottomSheetContent
 import kotlinx.coroutines.launch
 
 @Composable
-fun CameraManagement(modifier: Modifier, onClose: () -> Unit) {
+fun CameraManagement(
+    modifier: Modifier,
+
+) {
 
 
 
 
-    CameraContent(modifier, onClose)
+    CameraContent(modifier)
 }
 
 private fun takePhoto(
@@ -91,15 +106,29 @@ private fun takePhoto(
     )
 }
 
+@Preview
+@Composable
+private fun CameraContentPrev() {
+    CameraContent()
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CameraContent(
     modifier : Modifier = Modifier,
-    onClose: () -> Unit
+    //onClose: () -> Unit
 ){
 
     val scope = rememberCoroutineScope()
-    val scaffoldState = rememberBottomSheetScaffoldState()
+
+
+    val bottomSheetState = rememberStandardBottomSheetState(
+        initialValue = SheetValue.Expanded,
+    )
+    val scaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = bottomSheetState
+    )
+
     val applicationContext: Context = LocalContext.current
     val controller = remember {
         LifecycleCameraController(applicationContext).apply {
@@ -114,8 +143,44 @@ private fun CameraContent(
     val bitmaps by viewModel.bitmaps.collectAsState()
 
     BottomSheetScaffold(
+        modifier = Modifier,
         scaffoldState = scaffoldState,
-        sheetPeekHeight = 0.dp,
+        sheetPeekHeight = 100.dp,
+        sheetContent = {
+            Column (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(700.dp),
+            ){
+                OverviewScreen(onReportClicked = { /*TODO*/ }, onLogoutClicked = { /*TODO*/ }) {
+
+                }
+            }
+
+
+        }
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it),
+            contentAlignment = Alignment.Center
+        ){
+            Text(text = "Scaffold Content")
+
+            CameraPreview(
+            controller = controller,
+            modifier = Modifier
+                .fillMaxSize()
+            )
+        }
+    }
+
+
+
+/*    BottomSheetScaffold(
+        sheetPeekHeight = 500.dp,
+        scaffoldState = scaffoldState,
         sheetContent = {
             PhotoBottomSheetContent(
                 bitmaps = bitmaps,
@@ -127,9 +192,12 @@ private fun CameraContent(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .padding(padding),
+            contentAlignment = Alignment.Center
         ){
-            CameraPreview(
+            Text(text = "Scaffold Content")
+
+*//*            CameraPreview(
                 controller = controller,
                 modifier = Modifier
                     .fillMaxSize()
@@ -146,13 +214,13 @@ private fun CameraContent(
                     .offset(16.dp, 16.dp)
             ) {
                 Icon(imageVector = Icons.Default.Cameraswitch, contentDescription = "Switch Camera")
-            }
+            }*//*
 
 
 
             //LINE ON THE BOTTOM TO CONTROL THE CAMERA
 
-            Row (
+*//*            Row (
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter)
@@ -160,12 +228,7 @@ private fun CameraContent(
                 horizontalArrangement = Arrangement.SpaceAround
             ){
                 
-                ExtendedFloatingActionButton(onClick = { /*TODO*/ }) {
-                    Icon(Icons.Default.Add, contentDescription = "Add")
-                    Text(text = "Add number")
-                }
-                
-/*                IconButton(
+                IconButton(
                     onClick = {
                         //Open Gallery
                         scope.launch {
@@ -190,12 +253,12 @@ private fun CameraContent(
                 }
                 IconButton(
                     onClick = {
-                        onClose()
+
                     }
                 ) {
                     Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Go to Homescreen")
-                }*/
-            }
+                }
+            }*//*
         }
-    }
+    }*/
 }

@@ -12,6 +12,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.example.ui.theme.AppTypography
 
+const val stronglyDeemphasizedAlpha = 0.6f
+const val slightlyDeemphasizedAlpha = 0.87f
+
+
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
     onPrimary = onPrimaryLight,

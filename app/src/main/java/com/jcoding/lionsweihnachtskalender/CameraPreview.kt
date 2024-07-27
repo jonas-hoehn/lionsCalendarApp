@@ -2,6 +2,7 @@ package com.jcoding.lionsweihnachtskalender
 
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.camera.core.AspectRatio
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
@@ -14,11 +15,18 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Block
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Dialpad
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -32,12 +40,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.jcoding.lionsweihnachtskalender.camera.TextRecognitionAnalyzer
+import com.jcoding.lionsweihnachtskalender.data.CalendarData
+import com.jcoding.lionsweihnachtskalender.repository.CalendarRepository
+import com.jcoding.lionsweihnachtskalender.screens.AddCalendar
 
 private const val TAG = "CameraPreview"
 
@@ -46,7 +59,11 @@ fun CameraPreview(
     controller: LifecycleCameraController,
     modifier: Modifier = Modifier
 ) {
-
+    var text by remember {
+        mutableStateOf("")
+    }
+    val maxChar = 4
+    var currentCharLength : Int = 0
     val lifecycleOwner = LocalLifecycleOwner.current
     val context: Context = LocalContext.current
     val cameraController: LifecycleCameraController = remember { LifecycleCameraController(context) }
@@ -95,7 +112,7 @@ fun CameraPreview(
 
         Text(
             modifier = Modifier
-                .align(Alignment.TopCenter)
+                .align(Alignment.Center)
                 .offset(y = 300.dp)
                 .fillMaxWidth()
                 .padding(16.dp)
@@ -107,7 +124,76 @@ fun CameraPreview(
             maxLines = 1
         )
 
-        Button(
+        OutlinedTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.Center)
+                .offset(y = 400.dp)
+
+                .clip(RoundedCornerShape(8.dp))
+                .background(androidx.compose.ui.graphics.Color.White)
+                .padding(16.dp),
+            value = text,
+            onValueChange = { newText ->
+                if(newText.length <= maxChar){
+                    currentCharLength = newText.length
+                    text = newText
+                }
+            },
+            label = {
+                Text(text = "Kalendernummer")
+            },
+            placeholder = {
+                Text(text = "4-stellige PIN")
+            },
+            singleLine = true,
+            maxLines = 1,
+            leadingIcon = {
+                IconButton(onClick = {}) {
+                    Icon(
+                        imageVector = Icons.Filled.Dialpad,
+                        contentDescription = "Numbers Icon"
+                    )
+                }
+            },
+            trailingIcon = {
+                if(text.length == maxChar){
+                    IconButton(onClick = {
+                        AddCalendar(text = text, context = context)
+
+
+                    }) {
+                        Icon(
+                            imageVector = Icons.Filled.Check,
+                            contentDescription = "Numbers Icon"
+                        )
+                    }
+                }else{
+                    IconButton(onClick = {
+                        Log.d("Trailing Icon", "Clicked")
+                        Toast.makeText(context, "Bitte vier Zahlen eingeben.", Toast.LENGTH_LONG).show()
+                    }) {
+                        Icon(
+                            imageVector = Icons.Filled.Block,
+                            contentDescription = "Numbers Icon"
+                        )
+                    }
+                }
+
+            },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    AddCalendar(text = text, context = context)
+                    Log.d("ImeAction", "clicked")
+                }
+            )
+        )
+
+/*        Button(
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .offset(y = 30.dp)
@@ -117,9 +203,9 @@ fun CameraPreview(
                 .background(androidx.compose.ui.graphics.Color.White)
                 .wrapContentSize(Alignment.Center)
                 .padding(16.dp),
-            onClick = { /*TODO*/
+            onClick = { *//*TODO*//*
             Log.d(TAG, "CameraPreview: $detectedText")}
-        ) {}
+        ) {}*/
 
 
     }

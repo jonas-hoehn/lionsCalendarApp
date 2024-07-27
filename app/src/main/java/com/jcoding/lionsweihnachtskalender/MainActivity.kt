@@ -9,10 +9,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.compose.LIONSWeihnachtskalenderTheme
@@ -33,7 +29,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             LIONSWeihnachtskalenderTheme {
-                MainScreen()
+                MainApplicationNavHost()
             }
         }
     }

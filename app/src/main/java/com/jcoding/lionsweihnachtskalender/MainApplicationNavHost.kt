@@ -2,59 +2,89 @@
 
 package com.jcoding.lionsweihnachtskalender
 
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItemDefaults.containerColor
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarDefaults
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavDestination
-import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.wear.compose.material.ContentAlpha
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionState
-import com.google.accompanist.permissions.rememberPermissionState
-import com.jcoding.lionsweihnachtskalender.no_permission.NoPermissionScreen
+import com.jcoding.lionsweihnachtskalender.Destinations.MAINSCREEN_ROUTE
+import com.jcoding.lionsweihnachtskalender.Destinations.REPORT_ROUTE
+import com.jcoding.lionsweihnachtskalender.Destinations.OVERVIEW_ROUTE
+import com.jcoding.lionsweihnachtskalender.camera.CameraManagement
+import com.jcoding.lionsweihnachtskalender.overview.OverviewRoute
+import com.jcoding.lionsweihnachtskalender.screens.LibraryScreen
+
+object Destinations {
+    const val OVERVIEW_ROUTE = "overview"
+    const val MAINSCREEN_ROUTE = "cameramanagement"
+    const val LOGOUT_ROUTE = "logout"
+    const val REPORT_ROUTE = "repport"
+}
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun MainScreen() {
+fun MainApplicationNavHost(
+    navController: NavHostController = rememberNavController()
+) {
+
+    NavHost(
+        navController = navController,
+        startDestination = MAINSCREEN_ROUTE
+    ){
+
+        composable(MAINSCREEN_ROUTE){
+            CameraManagement(
+                modifier = Modifier.fillMaxSize(),
 
 
-    var paddingSettingsMain : PaddingValues by remember { mutableStateOf(PaddingValues()) }
-    val cameraPermissionState : PermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
+                )
+        }
 
-    MainContent(
+        composable(REPORT_ROUTE){
+            LibraryScreen(
+                onReportClicked = {
+                    navController.navigate(Destinations.REPORT_ROUTE)
+                }
+            )
+        }
+
+        composable(OVERVIEW_ROUTE){
+            OverviewRoute(
+                onReportClicked = {
+                    navController.navigate(Destinations.REPORT_ROUTE)
+                },
+                onLogoutClicked = {
+                    navController.navigate(Destinations.LOGOUT_ROUTE)
+                },
+                onOpenCameraClicked = {
+                    navController.navigate(MAINSCREEN_ROUTE)
+                }
+            )
+        }
+
+
+
+
+    }
+
+
+
+
+/*    MainContent(
         hasPermission = cameraPermissionState.hasPermission,
         onRequestPermission = cameraPermissionState::launchPermissionRequest,
 
-    )
+    )*/
 
 
 
 }
 
-@Composable
+/*@Composable
 private fun MainContent(
     hasPermission: Boolean,
     onRequestPermission: () -> Unit,
@@ -137,5 +167,5 @@ fun RowScope.AddItem (
             navController.navigate(screen.route)
         }
     )
-}
+}*/
 

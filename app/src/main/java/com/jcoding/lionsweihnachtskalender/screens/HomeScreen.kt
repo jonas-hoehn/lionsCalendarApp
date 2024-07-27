@@ -60,9 +60,11 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.jcoding.lionsweihnachtskalender.BottomBarScreen
 import com.jcoding.lionsweihnachtskalender.R
 import com.jcoding.lionsweihnachtskalender.camera.CameraManagement
 import com.jcoding.lionsweihnachtskalender.data.CalendarData
@@ -107,9 +109,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 
     // Conditionally display MainContent based on state
     if (openCameraStateChange) {
-        CameraManagement(modifier.fillMaxSize()){
-            openCameraStateChange = false
-        }
+        CameraManagement(modifier.fillMaxSize())
     }}
 
 
@@ -283,7 +283,15 @@ fun InputHandling(
     }
 }
 
-private fun AddCalendar(text: String, context: Context) {
+@Preview
+@Composable
+private fun InputHandPrev() {
+    InputHandling(openCameraStateChange = true) {
+        
+    }
+}
+
+fun AddCalendar(text: String, context: Context) {
     Log.d("Trailing Icon", "Clicked")
     //Toast.makeText(context, "Trailing Icon clicked", Toast.LENGTH_LONG).show()
     val calendarData = CalendarData(text.toInt(), true)
@@ -336,4 +344,10 @@ fun GreetingsSection(paddingValues: PaddingValues) {
             }
         }
     }
+}
+
+@Preview
+@Composable
+private fun HomePrev() {
+    HomeScreen()
 }

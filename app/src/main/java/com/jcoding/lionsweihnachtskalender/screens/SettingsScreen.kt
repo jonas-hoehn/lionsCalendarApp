@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jcoding.lionsweihnachtskalender.camera.CameraManagement
 
@@ -25,11 +26,15 @@ fun SettingsScreen() {
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            CameraManagement(modifier = Modifier) {
-
-            }
+            CameraManagement(modifier = Modifier)
         }
     }
 
 
+}
+
+@Preview
+@Composable
+private fun SettingsScreenPrev() {
+    SettingsScreen()
 }

@@ -2,4 +2,11 @@
     <string name="app_name">LIONS Weihnachtskalender</string>
     <string name="scan_input">Kamera Eingabe</string>
     <string name="manual_input">Manuelle Eingabe</string>
+    <string name="app_tagline">Lions Weihnachtskalender Edeka Integration</string>
+    <string name="choosing_option">Wählen sie die Eingabemethode:</string>
+    <string name="use_camera">Öffne Kamera</string>
+    <string name="or">oder</string>
+    <string name="open_report">Öffne Bericht</string>
+    <string name="logout_from_app">Abmelden</string>
+    <string name="go_to_homescreeen">Öffne Homescreen</string>
 </resources>
