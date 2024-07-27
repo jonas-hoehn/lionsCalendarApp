@@ -19,13 +19,16 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Cameraswitch
 import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -44,7 +47,11 @@ import com.jcoding.lionsweihnachtskalender.screens.PhotoBottomSheetContent
 import kotlinx.coroutines.launch
 
 @Composable
-fun CameraMangement(modifier: Modifier, onClose: () -> Unit) {
+fun CameraManagement(modifier: Modifier, onClose: () -> Unit) {
+
+
+
+
     CameraContent(modifier, onClose)
 }
 
@@ -152,7 +159,13 @@ private fun CameraContent(
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceAround
             ){
-                IconButton(
+                
+                ExtendedFloatingActionButton(onClick = { /*TODO*/ }) {
+                    Icon(Icons.Default.Add, contentDescription = "Add")
+                    Text(text = "Add number")
+                }
+                
+/*                IconButton(
                     onClick = {
                         //Open Gallery
                         scope.launch {
@@ -181,7 +194,7 @@ private fun CameraContent(
                     }
                 ) {
                     Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Go to Homescreen")
-                }
+                }*/
             }
         }
     }

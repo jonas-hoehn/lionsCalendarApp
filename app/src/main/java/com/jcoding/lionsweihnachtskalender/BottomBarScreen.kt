@@ -2,6 +2,7 @@ package com.jcoding.lionsweihnachtskalender
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Settings
@@ -17,6 +18,7 @@ sealed class BottomBarScreen (
         title = "Home",
         icon = Icons.Default.Home
     )
+
 
     object Library: BottomBarScreen(
         route = "library",

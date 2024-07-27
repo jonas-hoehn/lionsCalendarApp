@@ -63,9 +63,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.jcoding.lionsweihnachtskalender.MainScreen
 import com.jcoding.lionsweihnachtskalender.R
-import com.jcoding.lionsweihnachtskalender.camera.CameraMangement
+import com.jcoding.lionsweihnachtskalender.camera.CameraManagement
 import com.jcoding.lionsweihnachtskalender.data.CalendarData
 import com.jcoding.lionsweihnachtskalender.repository.CalendarRepository
 import java.util.Locale
@@ -108,7 +107,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 
     // Conditionally display MainContent based on state
     if (openCameraStateChange) {
-        CameraMangement(modifier.fillMaxSize()){
+        CameraManagement(modifier.fillMaxSize()){
             openCameraStateChange = false
         }
     }}

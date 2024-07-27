@@ -4,7 +4,6 @@ package com.jcoding.lionsweihnachtskalender
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -24,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -34,7 +34,6 @@ import androidx.wear.compose.material.ContentAlpha
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.rememberPermissionState
-import com.jcoding.lionsweihnachtskalender.camera.CameraMangement
 import com.jcoding.lionsweihnachtskalender.no_permission.NoPermissionScreen
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -62,20 +61,25 @@ private fun MainContent(
 
 ) {
 
+    val showBottomBar = remember { mutableStateOf(true) }
+
+
     if (hasPermission) {
         val navController = rememberNavController()
         Scaffold (
             bottomBar = {
-                BottomBar(
-                    navController = navController,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-                        },
+                if(showBottomBar.value){
+
+                    BottomBar(
+                        navController = navController,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                }
+                        }
         ){ innerPadding ->
-            BottomNavGraph(
-                navController = navController,
-                innerPadding
-            )
+            val context = LocalContext.current
+            BottomNavGraph(navController = navController, innerPadding, showBottomBar)
+
         }
     } else {
        NoPermissionScreen(onRequestPermission)
@@ -92,7 +96,7 @@ fun BottomBar(navController: NavHostController, modifier: Modifier) {
     )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currenDestination = navBackStackEntry?.destination
+    val currentDestination = navBackStackEntry?.destination
 
 
     NavigationBar (
@@ -100,7 +104,7 @@ fun BottomBar(navController: NavHostController, modifier: Modifier) {
         contentColor = MaterialTheme.colorScheme.contentColorFor(containerColor),
     ){
         screens.forEach { screen ->
-            AddItem(screen = screen, currentDestination = currenDestination, navController = navController)
+            AddItem(screen = screen, currentDestination = currentDestination, navController = navController)
         }
 
     }

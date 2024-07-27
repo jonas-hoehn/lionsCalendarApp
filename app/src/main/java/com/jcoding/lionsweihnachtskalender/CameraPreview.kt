@@ -14,6 +14,11 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Button
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -87,9 +92,10 @@ fun CameraPreview(
             modifier = modifier
         )
 
+
         Text(
             modifier = Modifier
-                .align(Alignment.Center)
+                .align(Alignment.TopCenter)
                 .offset(y = 300.dp)
                 .fillMaxWidth()
                 .padding(16.dp)
@@ -100,6 +106,20 @@ fun CameraPreview(
             text = detectedText,
             maxLines = 1
         )
+
+        Button(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .offset(y = 30.dp)
+                .fillMaxWidth()
+                .padding(16.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(androidx.compose.ui.graphics.Color.White)
+                .wrapContentSize(Alignment.Center)
+                .padding(16.dp),
+            onClick = { /*TODO*/
+            Log.d(TAG, "CameraPreview: $detectedText")}
+        ) {}
 
 
     }
