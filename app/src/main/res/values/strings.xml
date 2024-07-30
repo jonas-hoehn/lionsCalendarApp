@@ -9,4 +9,19 @@
     <string name="open_report">Öffne Bericht</string>
     <string name="logout_from_app">Abmelden</string>
     <string name="go_to_homescreeen">Öffne Homescreen</string>
+    <string name="feature_not_available">Feature noch nicht verfügbar</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="sign_in">Einloggen</string>
+    <string name="forgot_password">Passwort vergessen?</string>
+    <string name="password">Passwort</string>
+    <string name="back">Zurück</string>
+    <string name="email">Email</string>
+    <string name="hide_password">Verstecke Passwort</string>
+    <string name="show_password">Zeige Passwort</string>
+    <string name="sign_in_guest">Als Gast einloggen</string>
+    <string name="create_account">Account erstellen</string>
+    <string name="confirm_password">"Passwort bestätigen "</string>
+    <string name="terms_and_conditions">Terms and Conditions</string>
+    <string name="sign_in_create_account">Einloggen oder Account erstellen</string>
+    <string name="user_continue">Fortfahren</string>
 </resources>

@@ -10,11 +10,16 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.compose.jetsurvey.signinsignup.SignInRoute
+import com.example.compose.jetsurvey.signinsignup.SignUpRoute
+import com.example.compose.jetsurvey.signinsignup.WelcomeRoute
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.jcoding.lionsweihnachtskalender.Destinations.LOGIN_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.MAINSCREEN_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.REPORT_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.OVERVIEW_ROUTE
+import com.jcoding.lionsweihnachtskalender.Destinations.SIGN_IN_ROUTE
+import com.jcoding.lionsweihnachtskalender.Destinations.SIGN_UP_ROUTE
+import com.jcoding.lionsweihnachtskalender.Destinations.WELCOME_ROUTE
 import com.jcoding.lionsweihnachtskalender.camera.CameraManagement
 import com.jcoding.lionsweihnachtskalender.overview.OverviewRoute
 import com.jcoding.lionsweihnachtskalender.screens.LibraryScreen
@@ -24,7 +29,9 @@ object Destinations {
     const val MAINSCREEN_ROUTE = "cameramanagement"
     const val LOGOUT_ROUTE = "logout"
     const val REPORT_ROUTE = "repport"
-    const val LOGIN_ROUTE = "login"
+    const val WELCOME_ROUTE = "welcome"
+    const val SIGN_UP_ROUTE = "signup/{email}"
+    const val SIGN_IN_ROUTE = "signin/{email}"
 }
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -35,8 +42,52 @@ fun MainApplicationNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = MAINSCREEN_ROUTE
+        startDestination = WELCOME_ROUTE
     ){
+
+        composable(WELCOME_ROUTE) {
+            WelcomeRoute(
+                onNavigateToSignIn = {
+                    navController.navigate("signin/$it")
+                },
+                onNavigateToSignUp = {
+                    navController.navigate("signup/$it")
+                },
+                onSignInAsGuest = {
+                    navController.navigate(MAINSCREEN_ROUTE)
+                },
+            )
+        }
+
+        composable(SIGN_IN_ROUTE) {
+            val startingEmail = it.arguments?.getString("email")
+            SignInRoute(
+                email = startingEmail,
+                onSignInSubmitted = {
+                    navController.navigate(MAINSCREEN_ROUTE)
+                },
+                onSignInAsGuest = {
+                    navController.navigate(MAINSCREEN_ROUTE)
+                },
+                onNavUp = navController::navigateUp,
+            )
+        }
+
+        composable(SIGN_UP_ROUTE) {
+            val startingEmail = it.arguments?.getString("email")
+            SignUpRoute(
+                email = startingEmail,
+                onSignUpSubmitted = {
+                    navController.navigate(MAINSCREEN_ROUTE)
+                },
+                onSignInAsGuest = {
+                    navController.navigate(MAINSCREEN_ROUTE)
+                },
+                onNavUp = navController::navigateUp,
+            )
+        }
+
+
 
         composable(MAINSCREEN_ROUTE){
             CameraManagement(
@@ -46,16 +97,7 @@ fun MainApplicationNavHost(
 
                 )
         }
-
-/*        composable(LOGIN_ROUTE){
-            LoginScreen(
-                onLoginClicked = {
-                    navController.navigate(OVERVIEW_ROUTE)
-                }
-            )
-        }*/
-
-        composable(REPORT_ROUTE){
+            composable(REPORT_ROUTE){
             LibraryScreen(
                 onReportClicked = {
                     navController.navigate(Destinations.REPORT_ROUTE)
