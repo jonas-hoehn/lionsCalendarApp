@@ -63,6 +63,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.jcoding.lionsweihnachtskalender.BottomBarScreen
 import com.jcoding.lionsweihnachtskalender.R
@@ -109,7 +110,10 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 
     // Conditionally display MainContent based on state
     if (openCameraStateChange) {
-        CameraManagement(modifier.fillMaxSize())
+        CameraManagement(
+            navHostController = NavHostController(LocalContext.current),
+            modifier.fillMaxSize()
+        )
     }}
 
 

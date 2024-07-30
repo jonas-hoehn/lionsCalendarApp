@@ -52,6 +52,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import com.jcoding.lionsweihnachtskalender.CameraPreview
 import com.jcoding.lionsweihnachtskalender.data.MainCameraViewModel
 import com.jcoding.lionsweihnachtskalender.overview.OverviewScreen
@@ -60,14 +61,12 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun CameraManagement(
+    navHostController: NavHostController,
     modifier: Modifier,
 
 ) {
 
-
-
-
-    CameraContent(modifier)
+    CameraContent(navHostController, modifier)
 }
 
 private fun takePhoto(
@@ -106,15 +105,16 @@ private fun takePhoto(
     )
 }
 
-@Preview
+/*@Preview
 @Composable
 private fun CameraContentPrev() {
     CameraContent()
-}
+}*/
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CameraContent(
+    navHostController: NavHostController,
     modifier : Modifier = Modifier,
     //onClose: () -> Unit
 ){
@@ -169,6 +169,7 @@ private fun CameraContent(
             Text(text = "Scaffold Content")
 
             CameraPreview(
+                navHostController,
             controller = controller,
             modifier = Modifier
                 .fillMaxSize()

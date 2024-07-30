@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.jcoding.lionsweihnachtskalender.Destinations.LOGIN_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.MAINSCREEN_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.REPORT_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.OVERVIEW_ROUTE
@@ -23,6 +24,7 @@ object Destinations {
     const val MAINSCREEN_ROUTE = "cameramanagement"
     const val LOGOUT_ROUTE = "logout"
     const val REPORT_ROUTE = "repport"
+    const val LOGIN_ROUTE = "login"
 }
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -38,11 +40,20 @@ fun MainApplicationNavHost(
 
         composable(MAINSCREEN_ROUTE){
             CameraManagement(
+                navController,
                 modifier = Modifier.fillMaxSize(),
 
 
                 )
         }
+
+/*        composable(LOGIN_ROUTE){
+            LoginScreen(
+                onLoginClicked = {
+                    navController.navigate(OVERVIEW_ROUTE)
+                }
+            )
+        }*/
 
         composable(REPORT_ROUTE){
             LibraryScreen(
