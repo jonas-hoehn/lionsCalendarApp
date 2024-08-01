@@ -21,12 +21,12 @@ import com.jcoding.lionsweihnachtskalender.Destinations.SIGN_IN_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.SIGN_UP_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.WELCOME_ROUTE
 import com.jcoding.lionsweihnachtskalender.camera.CameraManagement
+import com.jcoding.lionsweihnachtskalender.overview.OverviewScreen
 import com.jcoding.lionsweihnachtskalender.screens.LibraryScreen
 
 object Destinations {
     const val OVERVIEW_ROUTE = "overview"
     const val MAINSCREEN_ROUTE = "cameramanagement"
-    const val LOGOUT_ROUTE = "logout"
     const val REPORT_ROUTE = "repport"
     const val WELCOME_ROUTE = "welcome"
     const val SIGN_UP_ROUTE = "signup/{email}"
@@ -106,6 +106,15 @@ fun MainApplicationNavHost(
         }
 
         composable(OVERVIEW_ROUTE){
+            OverviewScreen(
+                onHomeClicked = {
+                    navController.navigate(MAINSCREEN_ROUTE)
+                },
+                onReportClicked = {
+                    navController.navigate(REPORT_ROUTE)
+                },
+                onLogoutClicked = {Unit}
+            )
 
         }
 

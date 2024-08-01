@@ -24,4 +24,6 @@
     <string name="terms_and_conditions">Terms and Conditions</string>
     <string name="sign_in_create_account">Einloggen oder Account erstellen</string>
     <string name="user_continue">Fortfahren</string>
+    <string name="show_less">Weniger Infos</string>
+    <string name="show_more">Mehr Infos</string>
 </resources>

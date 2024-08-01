@@ -42,7 +42,7 @@ class WelcomeViewModel() : ViewModel() {
         onNavigateToSignIn: (email: String) -> Unit,
         onNavigateToSignUp: (email: String) -> Unit,
     ) {
-
+        onNavigateToSignIn(email)
     }
 
     fun signInAsGuest(
