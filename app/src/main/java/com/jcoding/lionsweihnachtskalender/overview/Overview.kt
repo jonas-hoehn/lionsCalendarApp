@@ -4,6 +4,7 @@ import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +25,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -40,7 +42,7 @@ fun OverviewScreen(
     modifier: Modifier = Modifier,
     onReportClicked: () -> Unit,
     onLogoutClicked: () -> Unit,
-    onOpenCameraClicked: @Composable () -> Unit
+    onHomeClicked: () -> Unit
 ) {
 
     //Variable declarations here
@@ -66,6 +68,7 @@ fun OverviewScreen(
 
             OptionsMenu(
                 onReportClicked = onReportClicked,
+                onHomeClicked = onHomeClicked,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
@@ -80,10 +83,14 @@ fun OverviewScreen(
 @Composable
 fun OptionsMenu(
     onReportClicked: () -> Unit,
+    onHomeClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
-    val onSubmit = {}
+    val onSubmit = {
+        onHomeClicked()
+    }
+
 
     //Layout of the options menu
     Column (
@@ -100,7 +107,7 @@ fun OptionsMenu(
         )
 
         Button(
-            onClick = onSubmit,
+            onClick = {onSubmit},
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 28.dp, bottom = 3.dp)
@@ -191,7 +198,7 @@ private fun OverviewScreenPrev() {
         OverviewScreen(
             onReportClicked = {},
             onLogoutClicked = {},
-            onOpenCameraClicked = {}
+            onHomeClicked = {}
         )
     }
 

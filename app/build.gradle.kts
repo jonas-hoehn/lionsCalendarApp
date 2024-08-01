@@ -102,4 +102,8 @@ dependencies {
     //ML Kit
     implementation("com.google.mlkit:text-recognition:16.0.0")
 
+    //Splash Screen Animation
+    implementation("androidx.core:core-splashscreen:1.0.1")
+
+
 }

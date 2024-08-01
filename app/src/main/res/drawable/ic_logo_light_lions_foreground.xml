@@ -4,7 +4,11 @@
     android:height="219dp"
     android:viewportWidth="175.5"
     android:viewportHeight="109.37">
-  <group android:scaleX="0.5683333"
+  <group
+      android:name="animationGroup"
+      android:pivotX="0.5"
+      android:pivotY="0.5"
+      android:scaleX="0.5683333"
       android:scaleY="0.35418016"
       android:translateX="37.87875"
       android:translateY="35.316658">

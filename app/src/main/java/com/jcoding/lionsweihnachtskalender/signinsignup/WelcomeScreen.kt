@@ -21,6 +21,7 @@ import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -39,6 +40,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -46,6 +48,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.compose.LIONSWeihnachtskalenderTheme
 import com.example.compose.stronglyDeemphasizedAlpha
 import com.jcoding.lionsweihnachtskalender.R
@@ -58,12 +61,14 @@ fun WelcomeScreen(
     onSignInAsGuest: () -> Unit,
 ) {
     var showBranding by rememberSaveable { mutableStateOf(true) }
+    val viewModel: WelcomeViewModel = viewModel(factory = WelcomeViewModelFactory())
 
     Scaffold(modifier = Modifier.supportWideScreen()) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxWidth()
+                .background(viewModel.backgroundColor)
                 .verticalScroll(rememberScrollState())
         ) {
             AnimatedVisibility(
@@ -81,6 +86,7 @@ fun WelcomeScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
             )
+
         }
     }
 }

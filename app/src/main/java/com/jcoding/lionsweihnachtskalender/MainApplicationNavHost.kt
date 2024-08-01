@@ -21,7 +21,6 @@ import com.jcoding.lionsweihnachtskalender.Destinations.SIGN_IN_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.SIGN_UP_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.WELCOME_ROUTE
 import com.jcoding.lionsweihnachtskalender.camera.CameraManagement
-import com.jcoding.lionsweihnachtskalender.overview.OverviewRoute
 import com.jcoding.lionsweihnachtskalender.screens.LibraryScreen
 
 object Destinations {
@@ -99,6 +98,7 @@ fun MainApplicationNavHost(
         }
             composable(REPORT_ROUTE){
             LibraryScreen(
+                navController,
                 onReportClicked = {
                     navController.navigate(Destinations.REPORT_ROUTE)
                 }
@@ -106,17 +106,7 @@ fun MainApplicationNavHost(
         }
 
         composable(OVERVIEW_ROUTE){
-            OverviewRoute(
-                onReportClicked = {
-                    navController.navigate(Destinations.REPORT_ROUTE)
-                },
-                onLogoutClicked = {
-                    navController.navigate(Destinations.LOGOUT_ROUTE)
-                },
-                onOpenCameraClicked = {
-                    navController.navigate(MAINSCREEN_ROUTE)
-                }
-            )
+
         }
 
 
