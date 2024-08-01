@@ -23,7 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
-class WelcomeViewModel() : ViewModel() {
+class WelcomeViewModel(private val userRepository: UserRepository) : ViewModel() {
 
      var backgroundColor by mutableStateOf(Color.White)
          private set
@@ -42,12 +42,18 @@ class WelcomeViewModel() : ViewModel() {
         onNavigateToSignIn: (email: String) -> Unit,
         onNavigateToSignUp: (email: String) -> Unit,
     ) {
-        onNavigateToSignIn(email)
+        if (userRepository.isKnownUserEmail(email)) {
+            onNavigateToSignIn(email)
+        } else {
+            onNavigateToSignUp(email)
+        }
     }
 
     fun signInAsGuest(
         onSignInComplete: () -> Unit,
     ) {
+        userRepository.signInAsGuest()
+        onSignInComplete()
     }
 }
 
@@ -55,7 +61,7 @@ class WelcomeViewModelFactory : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(WelcomeViewModel::class.java)) {
-            return WelcomeViewModel() as T
+            return WelcomeViewModel(UserRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

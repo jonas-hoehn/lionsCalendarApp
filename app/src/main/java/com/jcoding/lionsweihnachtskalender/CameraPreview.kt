@@ -92,8 +92,11 @@ fun CameraPreview(
             if(currentNumber != 0){
                 detectedText = currentNumber.toString()
                 if(detectedText != ""){
-                    AddCalendar(text = detectedText, context = context)
-                    navController.navigate(Destinations.REPORT_ROUTE)
+                  val error =  AddCalendar(text = detectedText, context = context)
+                    if (!error){
+                        navController.navigate(Destinations.REPORT_ROUTE)
+                    }else Unit
+
                 }
             }
 

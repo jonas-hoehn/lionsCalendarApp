@@ -105,5 +105,9 @@ dependencies {
     //Splash Screen Animation
     implementation("androidx.core:core-splashscreen:1.0.1")
 
-
+    //Pull down to fresh
+    implementation("com.google.accompanist:accompanist-swiperefresh:0.28.0")
+    implementation ("androidx.compose.material:material:1.3.0")
 }
+
+

@@ -22,7 +22,7 @@ import com.jcoding.lionsweihnachtskalender.Destinations.SIGN_UP_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.WELCOME_ROUTE
 import com.jcoding.lionsweihnachtskalender.camera.CameraManagement
 import com.jcoding.lionsweihnachtskalender.overview.OverviewScreen
-import com.jcoding.lionsweihnachtskalender.screens.LibraryScreen
+import com.jcoding.lionsweihnachtskalender.library.LibraryScreen
 
 object Destinations {
     const val OVERVIEW_ROUTE = "overview"
@@ -100,7 +100,7 @@ fun MainApplicationNavHost(
             LibraryScreen(
                 navController,
                 onReportClicked = {
-                    navController.navigate(Destinations.REPORT_ROUTE)
+                    navController.navigate(REPORT_ROUTE)
                 }
             )
         }

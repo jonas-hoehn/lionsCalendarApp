@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 
-package com.jcoding.lionsweihnachtskalender.screens
+package com.jcoding.lionsweihnachtskalender.library
 
 import android.content.Context
 import android.util.Log
@@ -20,13 +20,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -37,8 +40,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,16 +59,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.compose.LIONSWeihnachtskalenderTheme
 import com.example.compose.stronglyDeemphasizedAlpha
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.jcoding.lionsweihnachtskalender.CustomItem
 import com.jcoding.lionsweihnachtskalender.Destinations
 import com.jcoding.lionsweihnachtskalender.R
 import com.jcoding.lionsweihnachtskalender.data.CalendarData
 import com.jcoding.lionsweihnachtskalender.effects.AnimatedShimmer
 import com.jcoding.lionsweihnachtskalender.repository.CalendarRepository
+import com.jcoding.lionsweihnachtskalender.screens.AddCalendar
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,11 +83,12 @@ fun LibraryScreen(
 ) {
 
 
-    var showOnboarding by remember { mutableStateOf(true) }
-    var listSize by remember { mutableStateOf(0) }
-
+    var showOnboarding by remember { mutableStateOf(false) }
     val getAllData = CalendarRepository.getAllData()
-    listSize = getAllData.size
+    var listSize by remember { mutableStateOf(getAllData.size) }
+
+
+    //listSize = getAllData.size
 
     if (showOnboarding) {
         OnboardingScreen(navController, updateShowOnboarding = {
@@ -155,7 +165,7 @@ fun OnboardingScreen(navController: NavHostController, updateShowOnboarding: (Bo
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun HandleList(
     navController: NavHostController,
@@ -178,6 +188,24 @@ fun HandleList(
         showShimmer = false
         updateShowOnboarding(getAllData.isEmpty())
     }
+
+/*
+    val isLoading by viewModel.isLoading.collectAsState()
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isLoading)*/
+
+    val viewModel = viewModel<LibraryViewModel>()
+    var isRefreshing by remember {
+        mutableStateOf(false)
+    }
+
+    val onRefresh = {
+        isRefreshing = true
+        viewModel.startLoading()
+        isRefreshing = false
+    }
+
+    val refreshState = rememberPullRefreshState(refreshing = isRefreshing, onRefresh = onRefresh)
+
 
 
     Scaffold(
@@ -234,21 +262,34 @@ fun HandleList(
                         modifier = Modifier
                             .padding(top = innerPadding.calculateTopPadding())
                             .padding(vertical = 4.dp)
+
                     ) {
-                        LazyColumn {
 
-                            itemsIndexed(
-                                items = getAllData,
-                                key = { index, calendarData ->
-                                    calendarData.number
+                        Box(modifier = Modifier.pullRefresh(refreshState)){
+
+                            LazyColumn {
+
+                                itemsIndexed(
+                                    items = getAllData,
+                                    key = { index, calendarData ->
+                                        calendarData.number
+                                    }
+                                )
+                                { index, calendarItem ->
+                                    Log.d("Index of LazyList: ", index.toString())
+                                    CalendarItem(calendarData = calendarItem)
+
                                 }
-                            )
-                            { index, calendarItem ->
-                                Log.d("Index of LazyList: ", index.toString())
-                                CalendarItem(calendarData = calendarItem)
-
                             }
+
+                            PullRefreshIndicator(isRefreshing, refreshState, Modifier.align(Alignment.TopCenter))
+
                         }
+
+
+
+
+
                     }
                 }
 

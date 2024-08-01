@@ -7,7 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.jcoding.lionsweihnachtskalender.screens.HomeScreen
-import com.jcoding.lionsweihnachtskalender.screens.LibraryScreen
+import com.jcoding.lionsweihnachtskalender.library.LibraryScreen
 import com.jcoding.lionsweihnachtskalender.screens.SettingsScreen
 
 @Composable
