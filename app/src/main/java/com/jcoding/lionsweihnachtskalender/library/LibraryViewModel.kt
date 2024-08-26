@@ -29,6 +29,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class LibraryViewModel : ViewModel(){
 
@@ -46,9 +49,14 @@ class LibraryViewModel : ViewModel(){
     }
 
 
-    fun writeCalendarScan(number: Int, date: String, time: String, cashier: String){
+    fun writeCalendarScan(number: Int, cashier: String){
         val myRef = database.getReference("calendar-scans/$number")
-        val cDataFirebase = CalendarDataFirebase(number, date, time, cashier)
+        val now: Date = Date()
+        var formatter = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+        val formattedDate = formatter.format(now)
+        formatter = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+        val formattedTime = formatter.format(now)
+        val cDataFirebase = CalendarDataFirebase(number, formattedDate, formattedTime, cashier, now.time)
         myRef.setValue(cDataFirebase)
     }
 

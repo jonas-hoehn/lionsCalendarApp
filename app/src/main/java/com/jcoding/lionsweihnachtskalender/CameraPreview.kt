@@ -1,16 +1,13 @@
 package com.jcoding.lionsweihnachtskalender
 
 import android.content.Context
-import android.os.Build
 import android.util.Log
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.camera.core.AspectRatio
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,17 +18,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Dialpad
-import androidx.compose.material3.Button
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,29 +33,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
 import com.jcoding.lionsweihnachtskalender.camera.TextRecognitionAnalyzer
-import com.jcoding.lionsweihnachtskalender.data.CalendarData
-import com.jcoding.lionsweihnachtskalender.repository.CalendarRepository
+import com.jcoding.lionsweihnachtskalender.library.LibraryViewModel
 import com.jcoding.lionsweihnachtskalender.screens.AddCalendar
 
 private const val TAG = "CameraPreview"
 
 @Composable
 fun CameraPreview(
-    navController : NavHostController,
+    navController: NavHostController,
     controller: LifecycleCameraController,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {}
@@ -74,31 +63,35 @@ fun CameraPreview(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     val maxChar = 4
-    var currentCharLength : Int = 0
+    var currentCharLength: Int = 0
     val lifecycleOwner = LocalLifecycleOwner.current
     val context: Context = LocalContext.current
-    val cameraController: LifecycleCameraController = remember { LifecycleCameraController(context) }
+    val cameraController: LifecycleCameraController =
+        remember { LifecycleCameraController(context) }
     var detectedText: String by remember { mutableStateOf("No Number detected yet..") }
+
     fun onTextUpdated(updatedText: String) {
 
         val filteredString = updatedText.replace("[^0-9]".toRegex(), "")
 
         Log.d(TAG, "onTextUpdated: $filteredString")
         var currentNumber: Int = 0
-        if (filteredString.isNotEmpty() && filteredString.length <= 4){
+        if (filteredString.isNotEmpty() && filteredString.length <= 4) {
             currentNumber = filteredString.toInt()
 
         }
-            if(currentNumber != 0){
-                detectedText = currentNumber.toString()
-                if(detectedText != ""){
-                  val error =  AddCalendar(text = detectedText, context = context)
-                    if (!error){
-                        navController.navigate(Destinations.REPORT_ROUTE)
-                    }else Unit
-
-                }
+        if (currentNumber != 0) {
+            detectedText = currentNumber.toString()
+            if (detectedText != "") {
+                val error = AddCalendar(text = detectedText, context = context)
+                AddCalendar(detectedText, context)
+                val viewModel = LibraryViewModel()
+                viewModel.writeCalendarScan(Integer.parseInt(detectedText), "Stefan")
+                if (!error) {
+                    navController.navigate(Destinations.REPORT_ROUTE)
+                } else Unit
             }
+        }
 
 
     }
@@ -108,7 +101,7 @@ fun CameraPreview(
 
     Box(
         modifier = Modifier.fillMaxSize(),
-    ){
+    ) {
 
         AndroidView(
             factory = {
@@ -157,7 +150,7 @@ fun CameraPreview(
                 .padding(16.dp),
             value = text,
             onValueChange = { newText ->
-                if(newText.length <= maxChar){
+                if (newText.length <= maxChar) {
                     currentCharLength = newText.length
                     text = newText
                 }
@@ -179,7 +172,7 @@ fun CameraPreview(
                 }
             },
             trailingIcon = {
-                if(text.length == maxChar){
+                if (text.length == maxChar) {
                     IconButton(onClick = {
                         AddCalendar(text = text, context = context)
                         navController.navigate(Destinations.REPORT_ROUTE)
@@ -192,10 +185,11 @@ fun CameraPreview(
                             contentDescription = "Numbers Icon"
                         )
                     }
-                }else{
+                } else {
                     IconButton(onClick = {
                         Log.d("Trailing Icon", "Clicked")
-                        Toast.makeText(context, "Bitte vier Zahlen eingeben.", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Bitte vier Zahlen eingeben.", Toast.LENGTH_LONG)
+                            .show()
                     }) {
                         Icon(
                             imageVector = Icons.Filled.Block,

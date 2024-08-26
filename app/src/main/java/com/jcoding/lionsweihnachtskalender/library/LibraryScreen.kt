@@ -10,7 +10,6 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,14 +27,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.DismissDirection
 import androidx.compose.material.DismissValue
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.SnackbarDuration
 import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -51,10 +48,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -75,8 +70,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.compose.LIONSWeihnachtskalenderTheme
 import com.example.compose.stronglyDeemphasizedAlpha
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.jcoding.lionsweihnachtskalender.CustomItem
 import com.jcoding.lionsweihnachtskalender.Destinations
 import com.jcoding.lionsweihnachtskalender.R
@@ -85,7 +78,6 @@ import com.jcoding.lionsweihnachtskalender.effects.AnimatedShimmer
 import com.jcoding.lionsweihnachtskalender.repository.CalendarRepository
 import com.jcoding.lionsweihnachtskalender.screens.AddCalendar
 import kotlinx.coroutines.delay
-import kotlin.math.ln
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -295,7 +287,7 @@ fun HandleList(
                     Text(text = "Kalenderbericht")
                 },
             )
-        },
+        }/*,
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 modifier = Modifier
@@ -304,13 +296,13 @@ fun HandleList(
                     /*Toast.makeText(context, "Feature noch nicht verfügbar", Toast.LENGTH_SHORT)
                         .show()*/
                     AddCalendar("1234", context)
-                    viewModel.writeCalendarScan(9898, "12.08.2024", "12:15", "Stefan")
+                    viewModel.writeCalendarScan(9898, "Stefan")
                 }
             ) {
                 Icon(Icons.Default.Add, contentDescription = null)
                 Text(text = "Neuer Eintrag")
             }
-        }
+        }*/
     ) { innerPadding ->
         Column {
             if (showShimmer) {
