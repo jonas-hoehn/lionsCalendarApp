@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -52,6 +53,12 @@ android {
 
 dependencies {
 
+    implementation ("androidx.core:core-ktx:1.12.0")
+
+    //Firebase Implementation
+    implementation(libs.firebase.bom)
+    implementation(libs.firebase.database)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -66,6 +73,7 @@ dependencies {
     implementation(libs.androidx.ui.test.android)
     implementation("androidx.compose.material:material-icons-extended:1.5.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.3")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -73,6 +81,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+
 
     //Navigation Compose
     implementation(libs.androidx.navigation.compose)
@@ -108,6 +118,7 @@ dependencies {
     //Pull down to fresh
     implementation("com.google.accompanist:accompanist-swiperefresh:0.28.0")
     implementation ("androidx.compose.material:material:1.3.0")
+
 }
 
 

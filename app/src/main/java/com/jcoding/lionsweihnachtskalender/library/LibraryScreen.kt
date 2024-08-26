@@ -4,8 +4,13 @@ package com.jcoding.lionsweihnachtskalender.library
 
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,15 +25,21 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.DismissDirection
+import androidx.compose.material.DismissValue
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.SnackbarDuration
+import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -74,6 +85,7 @@ import com.jcoding.lionsweihnachtskalender.effects.AnimatedShimmer
 import com.jcoding.lionsweihnachtskalender.repository.CalendarRepository
 import com.jcoding.lionsweihnachtskalender.screens.AddCalendar
 import kotlinx.coroutines.delay
+import kotlin.math.ln
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -88,7 +100,6 @@ fun LibraryScreen(
     var listSize by remember { mutableStateOf(getAllData.size) }
 
 
-    //listSize = getAllData.size
 
     if (showOnboarding) {
         OnboardingScreen(navController, updateShowOnboarding = {
@@ -165,6 +176,53 @@ fun OnboardingScreen(navController: NavHostController, updateShowOnboarding: (Bo
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun <T> SwipeToDeleteContainer(
+    item: T,
+    onDeleted: (T) -> Unit,
+    animationDuration: Int = 500,
+    content: @Composable (T) -> Unit
+){
+    val viewModel = viewModel<LibraryViewModel>()
+    var isRemoved by remember { mutableStateOf(false) }
+    val state = rememberDismissState(
+        confirmStateChange = {value ->
+            if(value == DismissValue.DismissedToStart){
+                isRemoved = true
+                true
+            }else false
+        }
+    )
+
+    LaunchedEffect(key1 = isRemoved){
+        if(isRemoved){
+            delay(animationDuration.toLong())
+            onDeleted(item)
+        }
+    }
+    
+    AnimatedVisibility(
+        visible = !isRemoved,
+        exit = shrinkVertically(
+            animationSpec = tween(animationDuration),
+            shrinkTowards = Alignment.Top
+        ) + fadeOut()
+    ) {
+
+        SwipeToDismiss(
+            state = state,
+            background = {
+                viewModel.DeleteBackground(swipeDismissState = state)
+            },
+            dismissContent = {content(item)},
+            directions = setOf(DismissDirection.EndToStart)
+        )
+    }
+
+}
+
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun HandleList(
@@ -177,8 +235,9 @@ fun HandleList(
 ) {
 
     val context: Context = LocalContext.current
-    val getAllData = calendarData
+    var getAllData = calendarData
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+
     var showShimmer by remember {
         mutableStateOf(true)
     }
@@ -194,8 +253,13 @@ fun HandleList(
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isLoading)*/
 
     val viewModel = viewModel<LibraryViewModel>()
+
     var isRefreshing by remember {
         mutableStateOf(false)
+    }
+
+    var isSuccessfullyDeleted by remember {
+        mutableStateOf(true)
     }
 
     val onRefresh = {
@@ -240,6 +304,7 @@ fun HandleList(
                     /*Toast.makeText(context, "Feature noch nicht verfügbar", Toast.LENGTH_SHORT)
                         .show()*/
                     AddCalendar("1234", context)
+                    viewModel.writeCalendarScan(9898, "12.08.2024", "12:15", "Stefan")
                 }
             ) {
                 Icon(Icons.Default.Add, contentDescription = null)
@@ -247,8 +312,6 @@ fun HandleList(
             }
         }
     ) { innerPadding ->
-
-
         Column {
             if (showShimmer) {
                 repeat(10) {
@@ -262,25 +325,41 @@ fun HandleList(
                         modifier = Modifier
                             .padding(top = innerPadding.calculateTopPadding())
                             .padding(vertical = 4.dp)
-
                     ) {
-
                         Box(modifier = Modifier.pullRefresh(refreshState)){
+                                LazyColumn (
+                                    modifier =  Modifier.fillMaxSize()
+                                ){
+                                    itemsIndexed(
+                                        items = getAllData,
+                                        key = { index, calendarData ->
+                                            calendarData.number
+                                        }
+                                    )
+                                    { index, calendarItem ->
+                                        Log.d("Index of LazyList: ", index.toString())
+                                        //CalendarItem(calendarData = calendarItem)
+                                        SwipeToDeleteContainer(
+                                            item = calendarItem,
+                                            onDeleted = { removingCalendarData ->
+                                                isSuccessfullyDeleted =  viewModel.deleteCalendarItem(removingCalendarData, calendarItem.number)
+                                                if(!isSuccessfullyDeleted){
+                                                    Toast.makeText(context, "Fehler beim Löschen", Toast.LENGTH_SHORT).show()
+                                                }
 
-                            LazyColumn {
+                                            }
+                                        ) { cItem ->
+                                            /*Text(
+                                                text = cItem.toString(),
+                                                modifier = Modifier.fillMaxWidth()
+                                                    .background(MaterialTheme.colorScheme.background)
+                                                    .padding(16.dp)
+                                            )*/
+                                            CalendarItem(calendarData = cItem)
+                                        }
 
-                                itemsIndexed(
-                                    items = getAllData,
-                                    key = { index, calendarData ->
-                                        calendarData.number
                                     }
-                                )
-                                { index, calendarItem ->
-                                    Log.d("Index of LazyList: ", index.toString())
-                                    CalendarItem(calendarData = calendarItem)
-
                                 }
-                            }
 
                             PullRefreshIndicator(isRefreshing, refreshState, Modifier.align(Alignment.TopCenter))
 
@@ -347,7 +426,8 @@ fun CalendarItem(calendarData: CalendarData) {
                 }
 
                 if(expanded){
-                    Text(text = "Custom Item")
+                    Text(text = calendarData.date)
+                    Text(text = calendarData.time)
                 }
             }
             IconButton(onClick = { expanded = !expanded }) {

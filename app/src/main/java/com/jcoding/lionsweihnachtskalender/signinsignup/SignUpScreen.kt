@@ -49,7 +49,7 @@ fun SignUpScreen(
     Scaffold(
         topBar = {
             SignInSignUpTopAppBar(
-                topAppBarText = stringResource(id = R.string.create_account),
+                topAppBarText =     stringResource(id = R.string.create_account),
                 onNavUp = onNavUp,
             )
         },

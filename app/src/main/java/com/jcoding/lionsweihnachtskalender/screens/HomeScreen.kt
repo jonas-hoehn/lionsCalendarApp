@@ -299,7 +299,7 @@ fun AddCalendar(text: String, context: Context): Boolean {
     var errorMessage : Boolean = false
     Log.d("Trailing Icon", "Clicked")
     //Toast.makeText(context, "Trailing Icon clicked", Toast.LENGTH_LONG).show()
-    val calendarData = CalendarData(text.toInt(), true)
+    val calendarData = CalendarData(text.toInt(), "12.08.2024","12:15",true)
     if (CalendarRepository.contains(calendarData)) {
         Toast.makeText(context, "Kalender wurde bereits eingelöst.", Toast.LENGTH_LONG).show()
         errorMessage = true
@@ -307,6 +307,7 @@ fun AddCalendar(text: String, context: Context): Boolean {
     } else {
         Toast.makeText(context, "Kalender eingelöst", Toast.LENGTH_LONG).show()
         CalendarRepository.addDataEntry(calendarData)
+
     }
     return true
 }

@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "635445440186",
+    "firebase_url": "https://lions-edeka-adventskalender-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "lions-edeka-adventskalender",
+    "storage_bucket": "lions-edeka-adventskalender.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:635445440186:android:1e34054295eb4c4fb4dc83",
+        "android_client_info": {
+          "package_name": "com.jcoding.lionsweihnachtskalender"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQCdW6OB49wEJZVgRa3enbgkuqmj_DYzU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
