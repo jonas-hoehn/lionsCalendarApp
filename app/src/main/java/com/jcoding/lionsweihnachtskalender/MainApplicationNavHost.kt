@@ -113,7 +113,7 @@ fun MainApplicationNavHost(
                 onReportClicked = {
                     navController.navigate(REPORT_ROUTE)
                 },
-                onLogoutClicked = {Unit}
+                onLogoutClicked = {Unit},
             )
 
         }

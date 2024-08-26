@@ -65,7 +65,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.jcoding.lionsweihnachtskalender.BottomBarScreen
 import com.jcoding.lionsweihnachtskalender.R
 import com.jcoding.lionsweihnachtskalender.camera.CameraManagement
 import com.jcoding.lionsweihnachtskalender.data.CalendarData
@@ -299,14 +298,14 @@ fun AddCalendar(text: String, context: Context): Boolean {
     var errorMessage : Boolean = false
     Log.d("Trailing Icon", "Clicked")
     //Toast.makeText(context, "Trailing Icon clicked", Toast.LENGTH_LONG).show()
-    val calendarData = CalendarData(text.toInt(), "12.08.2024","12:15",true)
-    if (CalendarRepository.contains(calendarData)) {
+    val checkIfAlreadyExists = CalendarData(text.toInt(), "12.08.2024","12:15",true) //FIXME
+    if (CalendarRepository.contains(checkIfAlreadyExists)) {
         Toast.makeText(context, "Kalender wurde bereits eingelöst.", Toast.LENGTH_LONG).show()
         errorMessage = true
         return errorMessage
     } else {
         Toast.makeText(context, "Kalender eingelöst", Toast.LENGTH_LONG).show()
-        CalendarRepository.addDataEntry(calendarData)
+        CalendarRepository.addDataEntry(checkIfAlreadyExists)
 
     }
     return true

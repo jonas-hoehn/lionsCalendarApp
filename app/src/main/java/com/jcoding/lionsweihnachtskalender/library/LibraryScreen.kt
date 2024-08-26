@@ -10,6 +10,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,7 +31,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
@@ -39,7 +39,6 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -76,7 +75,6 @@ import com.jcoding.lionsweihnachtskalender.R
 import com.jcoding.lionsweihnachtskalender.data.CalendarData
 import com.jcoding.lionsweihnachtskalender.effects.AnimatedShimmer
 import com.jcoding.lionsweihnachtskalender.repository.CalendarRepository
-import com.jcoding.lionsweihnachtskalender.screens.AddCalendar
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,10 +86,20 @@ fun LibraryScreen(
 
 
     var showOnboarding by remember { mutableStateOf(false) }
-    val getAllData = CalendarRepository.getAllData()
-    var listSize by remember { mutableStateOf(getAllData.size) }
 
+    val viewModel = viewModel<LibraryViewModel>()
+    var listSize by remember { mutableStateOf(CalendarRepository.getAllData().size) }
 
+    viewModel.listenForScanUpdates { dataSnapshot ->
+        CalendarRepository.removeAllData()
+        dataSnapshot.children.forEach {
+            val calendarData = it.getValue(CalendarData::class.java)
+            if (calendarData != null) {
+                CalendarRepository.addDataEntry(calendarData)
+            }
+            listSize = CalendarRepository.getAllData().size
+        }
+    }
 
     if (showOnboarding) {
         OnboardingScreen(navController, updateShowOnboarding = {
@@ -102,7 +110,7 @@ fun LibraryScreen(
             navController,
             onReportClicked,
             listSize,
-            calendarData = getAllData,
+            currentCalendarDataList = CalendarRepository.getAllData(),
             showOnboarding = showOnboarding,
             updateShowOnboarding = { newValue ->
                 showOnboarding = newValue
@@ -142,21 +150,6 @@ fun OnboardingScreen(navController: NavHostController, updateShowOnboarding: (Bo
                     Text(text = "Kalenderbericht")
                 },
             )
-        },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                modifier = Modifier
-                    .padding(bottom = 16.dp),
-                onClick = {
-                    /*Toast.makeText(context, "Feature noch nicht verfügbar", Toast.LENGTH_SHORT)
-                        .show()*/
-                    AddCalendar("1234", context)
-                    updateShowOnboarding(false)
-                }
-            ) {
-                Icon(Icons.Default.Add, contentDescription = null)
-                Text(text = "Neuer Eintrag")
-            }
         }
     ) { innerPadding ->
         Box(
@@ -175,25 +168,25 @@ fun <T> SwipeToDeleteContainer(
     onDeleted: (T) -> Unit,
     animationDuration: Int = 500,
     content: @Composable (T) -> Unit
-){
+) {
     val viewModel = viewModel<LibraryViewModel>()
     var isRemoved by remember { mutableStateOf(false) }
     val state = rememberDismissState(
-        confirmStateChange = {value ->
-            if(value == DismissValue.DismissedToStart){
+        confirmStateChange = { value ->
+            if (value == DismissValue.DismissedToStart) {
                 isRemoved = true
                 true
-            }else false
+            } else false
         }
     )
 
-    LaunchedEffect(key1 = isRemoved){
-        if(isRemoved){
+    LaunchedEffect(key1 = isRemoved) {
+        if (isRemoved) {
             delay(animationDuration.toLong())
             onDeleted(item)
         }
     }
-    
+
     AnimatedVisibility(
         visible = !isRemoved,
         exit = shrinkVertically(
@@ -207,7 +200,7 @@ fun <T> SwipeToDeleteContainer(
             background = {
                 viewModel.DeleteBackground(swipeDismissState = state)
             },
-            dismissContent = {content(item)},
+            dismissContent = { content(item) },
             directions = setOf(DismissDirection.EndToStart)
         )
     }
@@ -221,13 +214,12 @@ fun HandleList(
     navController: NavHostController,
     onReportClicked: () -> Unit,
     listSize: Int,
-    calendarData: List<CalendarData>,
+    currentCalendarDataList: List<CalendarData>,
     showOnboarding: Boolean,
     updateShowOnboarding: (Boolean) -> Unit,
 ) {
 
     val context: Context = LocalContext.current
-    var getAllData = calendarData
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     var showShimmer by remember {
@@ -237,12 +229,12 @@ fun HandleList(
     LaunchedEffect(Unit) {
         delay(1000)
         showShimmer = false
-        updateShowOnboarding(getAllData.isEmpty())
+        updateShowOnboarding(currentCalendarDataList.isEmpty())
     }
 
-/*
-    val isLoading by viewModel.isLoading.collectAsState()
-    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isLoading)*/
+    /*
+        val isLoading by viewModel.isLoading.collectAsState()
+        val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isLoading)*/
 
     val viewModel = viewModel<LibraryViewModel>()
 
@@ -313,53 +305,46 @@ fun HandleList(
                 Surface(
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .padding(top = innerPadding.calculateTopPadding())
-                            .padding(vertical = 4.dp)
-                    ) {
-                        Box(modifier = Modifier.pullRefresh(refreshState)){
-                                LazyColumn (
-                                    modifier =  Modifier.fillMaxSize()
-                                ){
-                                    itemsIndexed(
-                                        items = getAllData,
-                                        key = { index, calendarData ->
-                                            calendarData.number
-                                        }
-                                    )
-                                    { index, calendarItem ->
-                                        Log.d("Index of LazyList: ", index.toString())
-                                        //CalendarItem(calendarData = calendarItem)
-                                        SwipeToDeleteContainer(
-                                            item = calendarItem,
-                                            onDeleted = { removingCalendarData ->
-                                                isSuccessfullyDeleted =  viewModel.deleteCalendarItem(removingCalendarData, calendarItem.number)
-                                                if(!isSuccessfullyDeleted){
-                                                    Toast.makeText(context, "Fehler beim Löschen", Toast.LENGTH_SHORT).show()
-                                                }
 
-                                            }
-                                        ) { cItem ->
-                                            /*Text(
-                                                text = cItem.toString(),
-                                                modifier = Modifier.fillMaxWidth()
-                                                    .background(MaterialTheme.colorScheme.background)
-                                                    .padding(16.dp)
-                                            )*/
-                                            CalendarItem(calendarData = cItem)
-                                        }
+                        Column(
+                            modifier = Modifier
+                                .padding(top = innerPadding.calculateTopPadding())
+                                .padding(vertical = 4.dp)
+                        ) {
 
+                            Box(modifier = Modifier.pullRefresh(refreshState)) {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize()
+                            ) {
+                                itemsIndexed(
+                                    items = currentCalendarDataList,
+                                    key = { index, calendarData ->
+                                        calendarData.number
                                     }
+                                )
+                                { index, calendarItem ->
+                                    Log.d("Index of LazyList: ", index.toString())
+
+/*                                        Text(
+                                            text = calendarItem.number.toString(),
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .background(MaterialTheme.colorScheme.background)
+                                                .padding(16.dp)
+                                        )*/
+                                        CalendarItem(calendarData = calendarItem)
+
                                 }
-
-                            PullRefreshIndicator(isRefreshing, refreshState, Modifier.align(Alignment.TopCenter))
-
-                        }
+                            }
 
 
+                                PullRefreshIndicator(
+                                    isRefreshing,
+                                    refreshState,
+                                    Modifier.align(Alignment.TopCenter)
+                                )
 
-
+                            }
 
                     }
                 }
@@ -398,11 +383,11 @@ fun CalendarItem(calendarData: CalendarData) {
                     .weight(1f)
                     .padding(bottom = extraPadding.coerceAtLeast(0.dp)),
             ) {
-                Row (
+                Row(
                     modifier = Modifier,
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start
-                ){
+                ) {
 
                     Text(
                         text = "${calendarData.number}",
@@ -417,7 +402,7 @@ fun CalendarItem(calendarData: CalendarData) {
                     )
                 }
 
-                if(expanded){
+                if (expanded) {
                     Text(text = calendarData.date)
                     Text(text = calendarData.time)
                 }
@@ -497,7 +482,9 @@ fun OrGoToReport(
                 .fillMaxWidth()
                 .padding(top = 20.dp, bottom = 24.dp),
         ) {
+            val context = LocalContext.current
             Text(text = stringResource(id = R.string.open_report))
+            Toast.makeText(context, "Button clicked!!", Toast.LENGTH_SHORT).show()
         }
     }
 }

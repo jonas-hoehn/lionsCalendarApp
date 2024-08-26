@@ -14,6 +14,10 @@ object CalendarRepository {
         return currentNumbersList
     }
 
+    fun removeAllData(){
+        currentNumbersList.clear()
+    }
+
     fun addDataEntry(calendarData: CalendarData){
         currentNumbersList.add(calendarData)
     }

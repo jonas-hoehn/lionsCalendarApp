@@ -21,10 +21,16 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 import com.jcoding.lionsweihnachtskalender.data.CalendarData
 import com.jcoding.lionsweihnachtskalender.data.CalendarDataFirebase
 import com.jcoding.lionsweihnachtskalender.repository.CalendarRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,6 +38,8 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+
+private const val DATABASE_SCANS = "calendar-scans/"
 
 class LibraryViewModel : ViewModel(){
 
@@ -46,6 +54,30 @@ class LibraryViewModel : ViewModel(){
     init {
 
         startLoading()
+    }
+
+
+    fun listenForScanUpdates(
+        updateScanSnapshot: (DataSnapshot) -> Unit
+    ) {
+        val scansRef: DatabaseReference = database.getReference(DATABASE_SCANS)
+        val query = scansRef.orderByChild("timestamp")
+
+        // Use a CoroutineScope to handle asynchronousoperations
+        CoroutineScope(Dispatchers.IO).launch {
+            query.addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    updateScanSnapshot(snapshot)
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    // Handle potential errors here
+                    //Timber.e(error.toException(), "Error listening for scan updates")
+                }
+            })
+        }
+
+
     }
 
 

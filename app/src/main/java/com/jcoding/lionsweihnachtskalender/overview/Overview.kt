@@ -30,9 +30,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.rememberNavController
 import com.example.compose.LIONSWeihnachtskalenderTheme
 import com.example.compose.stronglyDeemphasizedAlpha
 import com.jcoding.lionsweihnachtskalender.R
+import com.jcoding.lionsweihnachtskalender.library.LibraryScreen
 import com.jcoding.lionsweihnachtskalender.library.OrGoToReport
 
 @Composable
@@ -40,8 +45,9 @@ fun OverviewScreen(
     modifier: Modifier = Modifier,
     onReportClicked: () -> Unit,
     onLogoutClicked: () -> Unit,
-    onHomeClicked: () -> Unit
+    onHomeClicked: () -> Unit,
 ) {
+
 
     //Variable declarations here
     var showBranding by rememberSaveable { mutableStateOf(true) }
@@ -57,6 +63,7 @@ fun OverviewScreen(
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
         ) {
+
             AnimatedVisibility(
                 showBranding,
                 Modifier.fillMaxWidth()
@@ -65,7 +72,7 @@ fun OverviewScreen(
             }
 
             OptionsMenu(
-                onReportClicked = onReportClicked,
+                onReportClicked =  onReportClicked,
                 onHomeClicked = onHomeClicked,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -85,6 +92,7 @@ fun OptionsMenu(
     modifier: Modifier = Modifier
 ) {
 
+    val navController = rememberNavController()
     val onSubmit = {
         onHomeClicked()
     }
@@ -105,7 +113,7 @@ fun OptionsMenu(
         )
 
         Button(
-            onClick = {onSubmit},
+            onClick = onSubmit,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 28.dp, bottom = 3.dp)
@@ -117,7 +125,7 @@ fun OptionsMenu(
         }
 
         OrGoToReport(
-            onReportClicked = onReportClicked,
+            onReportClicked = onReportClicked ,
         )
 
         //OrLogoutFromApp()
