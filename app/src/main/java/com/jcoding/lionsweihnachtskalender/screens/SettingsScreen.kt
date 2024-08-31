@@ -29,7 +29,12 @@ fun SettingsScreen() {
                 .padding(innerPadding)
         ) {
             CameraManagement(
-                navHostController = NavHostController(LocalContext.current),modifier = Modifier)
+                navHostController = NavHostController(LocalContext.current),
+                modifier = Modifier,
+                onHomeClicked = {},
+                onLogoutClicked = {},
+                onReportClicked = {}
+            )
         }
     }
 

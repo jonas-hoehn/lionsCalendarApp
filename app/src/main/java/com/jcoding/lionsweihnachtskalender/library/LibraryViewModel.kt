@@ -96,7 +96,7 @@ class LibraryViewModel : ViewModel(){
     fun startLoading() {
         viewModelScope.launch {
             _isLoading.value = true
-            delay(3000)
+            delay(9000)
             _isLoading.value = false
         }
     }

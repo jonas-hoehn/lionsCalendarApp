@@ -482,9 +482,10 @@ fun OrGoToReport(
                 .fillMaxWidth()
                 .padding(top = 20.dp, bottom = 24.dp),
         ) {
-            val context = LocalContext.current
+            
+           // val context = LocalContext.current
             Text(text = stringResource(id = R.string.open_report))
-            Toast.makeText(context, "Button clicked!!", Toast.LENGTH_SHORT).show()
+           // Toast.makeText(context, "Button clicked!!", Toast.LENGTH_SHORT).show()
         }
     }
 }

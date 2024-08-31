@@ -30,14 +30,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.rememberNavController
 import com.example.compose.LIONSWeihnachtskalenderTheme
 import com.example.compose.stronglyDeemphasizedAlpha
 import com.jcoding.lionsweihnachtskalender.R
-import com.jcoding.lionsweihnachtskalender.library.LibraryScreen
 import com.jcoding.lionsweihnachtskalender.library.OrGoToReport
 
 @Composable
@@ -54,7 +49,9 @@ fun OverviewScreen(
 
     // Implement composable here
 
-    Scaffold(modifier) { innerpadding ->
+    Scaffold(
+        modifier
+    ) { innerpadding ->
 
         //Column
         Column(
@@ -92,12 +89,6 @@ fun OptionsMenu(
     modifier: Modifier = Modifier
 ) {
 
-    val navController = rememberNavController()
-    val onSubmit = {
-        onHomeClicked()
-    }
-
-
     //Layout of the options menu
     Column (
         modifier = modifier,
@@ -113,7 +104,7 @@ fun OptionsMenu(
         )
 
         Button(
-            onClick = onSubmit,
+            onClick = onHomeClicked,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 28.dp, bottom = 3.dp)
@@ -204,7 +195,7 @@ private fun OverviewScreenPrev() {
         OverviewScreen(
             onReportClicked = {},
             onLogoutClicked = {},
-            onHomeClicked = {}
+            onHomeClicked = {},
         )
     }
 

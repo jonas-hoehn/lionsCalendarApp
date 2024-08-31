@@ -23,6 +23,7 @@ import com.jcoding.lionsweihnachtskalender.Destinations.WELCOME_ROUTE
 import com.jcoding.lionsweihnachtskalender.camera.CameraManagement
 import com.jcoding.lionsweihnachtskalender.overview.OverviewScreen
 import com.jcoding.lionsweihnachtskalender.library.LibraryScreen
+import com.jcoding.lionsweihnachtskalender.overview.OverviewRoute
 
 object Destinations {
     const val OVERVIEW_ROUTE = "overview"
@@ -53,8 +54,22 @@ fun MainApplicationNavHost(
                     navController.navigate("signup/$it")
                 },
                 onSignInAsGuest = {
+                    navController.navigate(OVERVIEW_ROUTE) //Hier war voher MAINSCREEN_ROUTE
+                },
+            )
+        }
+
+        composable(OVERVIEW_ROUTE){
+            OverviewRoute(
+                onHomeClicked = {
                     navController.navigate(MAINSCREEN_ROUTE)
                 },
+                onReportClicked = {
+                    navController.navigate(REPORT_ROUTE)
+                },
+                onLogoutClicked = {
+                    navController.navigate(REPORT_ROUTE)
+                }
             )
         }
 
@@ -92,8 +107,15 @@ fun MainApplicationNavHost(
             CameraManagement(
                 navController,
                 modifier = Modifier.fillMaxSize(),
-
-
+                onReportClicked = {
+                    navController.navigate(REPORT_ROUTE)
+                },
+                onHomeClicked = {
+                    navController.navigate(OVERVIEW_ROUTE)
+                },
+                onLogoutClicked = {
+                    navController.navigate(OVERVIEW_ROUTE)
+                }
                 )
         }
             composable(REPORT_ROUTE){
@@ -104,22 +126,6 @@ fun MainApplicationNavHost(
                 }
             )
         }
-
-        composable(OVERVIEW_ROUTE){
-            OverviewScreen(
-                onHomeClicked = {
-                    navController.navigate(MAINSCREEN_ROUTE)
-                },
-                onReportClicked = {
-                    navController.navigate(REPORT_ROUTE)
-                },
-                onLogoutClicked = {Unit},
-            )
-
-        }
-
-
-
 
     }
 

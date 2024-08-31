@@ -88,8 +88,6 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             GreetingsSection(paddingValues = PaddingValues())
             Spacer(Modifier.height(16.dp))
 
-            Spacer(Modifier.height(16.dp))
-
             Box(
                 modifier = Modifier
                     .padding(start = 16.dp, end = 16.dp)
@@ -111,7 +109,10 @@ fun HomeScreen(modifier: Modifier = Modifier) {
     if (openCameraStateChange) {
         CameraManagement(
             navHostController = NavHostController(LocalContext.current),
-            modifier.fillMaxSize()
+            modifier.fillMaxSize(),
+            onHomeClicked = {},
+            onLogoutClicked = {},
+            onReportClicked = {},
         )
     }}
 
@@ -183,7 +184,8 @@ fun InputHandling(
 ) {
     Column (
         modifier = Modifier
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 16.dp)
+            .padding(bottom = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
@@ -273,15 +275,6 @@ fun InputHandling(
             )
         )
 
-        //EXTENDED FAB
-        ExtendedFloatingActionButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
-            onClick = { onCameraStateChanged (!openCameraStateChange) }, // Trigger state change
-            icon = { Icon(Icons.Filled.DocumentScanner, "Localized description") },
-            text = { Text(text = "Kamera öffnen") },
-        )
 
     }
 }
