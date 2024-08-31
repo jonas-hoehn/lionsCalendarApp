@@ -69,7 +69,7 @@ fun WelcomeScreen(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .background(viewModel.backgroundColor)
+                .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(rememberScrollState())
         ) {
             AnimatedVisibility(
@@ -104,6 +104,7 @@ private fun Branding(modifier: Modifier = Modifier) {
         )
         Text(
             text = stringResource(id = R.string.app_tagline),
+            color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.titleMedium,
             textAlign = TextAlign.Center,
             modifier = Modifier

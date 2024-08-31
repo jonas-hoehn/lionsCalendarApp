@@ -14,9 +14,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
@@ -155,7 +160,6 @@ private fun CameraContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(it),
-            contentAlignment = Alignment.Center
         ){
             Text(text = "Scaffold Content")
 
@@ -165,6 +169,14 @@ private fun CameraContent(
             modifier = Modifier
                 .fillMaxSize()
             )
+
+            IconButton(
+                onClick = {},
+                modifier = Modifier
+                    .offset(16.dp, 16.dp)
+            ) {
+                Icon(imageVector = Icons.Default.Logout, contentDescription = "Switch Camera")
+            }
         }
     }
 

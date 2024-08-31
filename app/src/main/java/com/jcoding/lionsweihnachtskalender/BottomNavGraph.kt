@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import com.jcoding.lionsweihnachtskalender.screens.HomeScreen
 import com.jcoding.lionsweihnachtskalender.library.LibraryScreen
 import com.jcoding.lionsweihnachtskalender.screens.SettingsScreen
+import com.jcoding.lionsweihnachtskalender.screens.SettingsViewModel
 
 @Composable
 fun BottomNavGraph(
@@ -36,7 +37,7 @@ fun BottomNavGraph(
 
         composable(route = BottomBarScreen.Settings.route){
             showBottomBar.value = false
-            SettingsScreen()
+            SettingsScreen(vm = SettingsViewModel())
         }
     }
 }

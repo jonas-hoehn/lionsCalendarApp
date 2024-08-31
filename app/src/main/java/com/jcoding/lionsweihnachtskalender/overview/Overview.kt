@@ -6,6 +6,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -32,8 +33,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.compose.LIONSWeihnachtskalenderTheme
 import com.example.compose.stronglyDeemphasizedAlpha
+import com.google.firebase.auth.FirebaseAuth
 import com.jcoding.lionsweihnachtskalender.R
 import com.jcoding.lionsweihnachtskalender.library.OrGoToReport
+
+lateinit var auth: FirebaseAuth
 
 @Composable
 fun OverviewScreen(
@@ -127,7 +131,10 @@ fun OptionsMenu(
 fun OrLogoutFromApp(
     modifier: Modifier = Modifier,
 ) {
-    val onSubmit = {}
+    auth = FirebaseAuth.getInstance()
+    val onSubmit = {
+        auth.signOut()
+    }
 
     Column (
         modifier = modifier,

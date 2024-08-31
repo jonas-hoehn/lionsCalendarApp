@@ -22,8 +22,9 @@ object CalendarRepository {
         calenderEntryList.add(calendarData)
     }
 
-    fun removeDataEntry(calendarData: CalendarData, index: Int): Boolean {
+    fun removeDataEntry(calendarData: CalendarData, calendarNumber: Int): Boolean {
 
+        val index = calenderEntryList.indexOf(calendarData)
         if (index in calenderEntryList.indices) {
             if (index >= 0 && index < calenderEntryList.size) {
                 calenderEntryList.removeAt(index)

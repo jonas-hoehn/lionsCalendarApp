@@ -128,10 +128,10 @@ class LibraryViewModel : ViewModel(){
 
     }
 
-    fun deleteCalendarItem(calendarItem: CalendarData, index: Int) : Boolean{
+    fun deleteCalendarItem(calendarItem: CalendarData, calendarNumber: Int) : Boolean{
         val calendarRepo = CalendarRepository
         var successful = false
-        successful = calendarRepo.removeDataEntry(calendarItem, index = index)
+        successful = calendarRepo.removeDataEntry(calendarItem, calendarNumber)
         return successful
     }
 

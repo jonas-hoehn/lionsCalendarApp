@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Dialpad
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -132,10 +133,11 @@ fun CameraPreview(
                 .fillMaxWidth()
                 .padding(16.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(androidx.compose.ui.graphics.Color.White)
+                .background(MaterialTheme.colorScheme.primaryContainer)
                 .wrapContentSize(Alignment.Center)
                 .padding(16.dp),
             text = detectedText,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
             maxLines = 1
         )
 
@@ -147,13 +149,13 @@ fun CameraPreview(
                 .align(Alignment.Center)
                 .offset(y = 300.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(androidx.compose.ui.graphics.Color.White)
+                .background(MaterialTheme.colorScheme.primaryContainer)
                 .padding(16.dp),
             value = text,
             onValueChange = { newText ->
                 if (newText.length <= maxChar) {
                     if (CalendarRepository.containsNumber(newText.toInt())) {
-                        Toast.makeText(context, "Die Zahl ist schon vergeben.", Toast.LENGTH_LONG)
+                        Toast.makeText(context, "Die Zahl $newText ist schon vergeben.", Toast.LENGTH_LONG)
                             .show()
                         return@OutlinedTextField
                     }
@@ -213,10 +215,10 @@ fun CameraPreview(
                 onDone = {
                     AddCalendar(text, context = context)
                     keyboardController?.hide()
-                    text = ""
+                    text = "" //FIXME hier könnte die Nullpointer Exception fliegen
                     Log.d("ImeAction", "clicked")
                 }
-            )
+            ),
         )
     }
 

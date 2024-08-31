@@ -269,7 +269,7 @@ fun HandleList(
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 ),
                 scrollBehavior = scrollBehavior,
                 navigationIcon = {
@@ -399,7 +399,7 @@ fun CalendarItem(calendarData: CalendarData) {
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = if (calendarData.scanned) "Eingelöst" else "Nicht eingelöst",
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                         fontWeight = FontWeight.Normal
                     )
                 }

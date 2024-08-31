@@ -16,7 +16,18 @@
 
 package com.example.compose.jetsurvey.signinsignup
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.platform.LocalContext
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import kotlin.contracts.contract
 
 sealed class User {
     @Immutable
@@ -33,18 +44,65 @@ sealed class User {
  */
 object UserRepository {
 
+    private lateinit var auth: FirebaseAuth
+
     private var _user: User = User.NoUserLoggedIn
     val user: User
         get() = _user
 
-    @Suppress("UNUSED_PARAMETER")
     fun signIn(email: String, password: String) {
+
+        auth = FirebaseAuth.getInstance()
+
+        if(email.isNotEmpty() && password.isNotEmpty()){
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    auth.signInWithEmailAndPassword(email, password).await()
+                    withContext(Dispatchers.Main){
+                        checkLoggedInState()
+                    }
+                } catch (e: Exception){
+                    withContext(Dispatchers.Main){
+                        Log.e("Error beim Login", e.message.toString())
+                        //Toast.makeText(this@UserRepository, e.message, Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        }
+
+
         _user = User.LoggedInUser(email)
     }
 
-    @Suppress("UNUSED_PARAMETER")
     fun signUp(email: String, password: String) {
+        auth = FirebaseAuth.getInstance()
+
+        if(email.isNotEmpty() && password.isNotEmpty()){
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    auth.createUserWithEmailAndPassword(email, password).await()
+                    withContext(Dispatchers.Main){
+                        checkLoggedInState()
+                    }
+                } catch (e: Exception){
+                    withContext(Dispatchers.Main){
+                        Log.e("Error beim Login", e.message.toString())
+                        //Toast.makeText(this@UserRepository, e.message, Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        }
+
+
         _user = User.LoggedInUser(email)
+    }
+
+    private fun checkLoggedInState() {
+        if(auth.currentUser == null){
+            _user = User.NoUserLoggedIn
+        } else {
+            _user = User.LoggedInUser(auth.currentUser!!.email.toString())
+        }
     }
 
     fun signInAsGuest() {
@@ -53,6 +111,19 @@ object UserRepository {
 
     fun isKnownUserEmail(email: String): Boolean {
         // if the email contains "sign up" we consider it unknown
+        auth = FirebaseAuth.getInstance()
+        val firebaseUser = auth.currentUser
+        if (firebaseUser == null) {
+            return !email.contains(email)
+        }
+
         return !email.contains("signup")
+
+    }
+
+    fun signOut() {
+        auth.signOut()
+        _user = User.NoUserLoggedIn
     }
 }
+

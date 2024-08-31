@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.compose.LIONSWeihnachtskalenderTheme
+import com.google.firebase.auth.FirebaseAuth
 
 private const val TAG = "MainActivity"
 
@@ -22,9 +23,11 @@ private const val TAG = "MainActivity"
 class MainActivity : ComponentActivity() {
 
     private val viewModel by viewModels<MainViewModel>()
+    lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
 
 
         enableEdgeToEdge()
@@ -35,6 +38,8 @@ class MainActivity : ComponentActivity() {
                 !viewModel.isReady.value
             }
         }
+
+        auth = FirebaseAuth.getInstance()
 
         if(!hasRequiredPermissions()) {
             ActivityCompat.requestPermissions(
@@ -48,6 +53,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
 
 
 
