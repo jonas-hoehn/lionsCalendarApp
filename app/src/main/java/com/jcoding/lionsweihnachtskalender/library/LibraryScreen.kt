@@ -31,6 +31,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
@@ -39,6 +40,7 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -49,6 +51,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,12 +72,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.compose.LIONSWeihnachtskalenderTheme
 import com.example.compose.stronglyDeemphasizedAlpha
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.jcoding.lionsweihnachtskalender.CustomItem
 import com.jcoding.lionsweihnachtskalender.Destinations
 import com.jcoding.lionsweihnachtskalender.R
 import com.jcoding.lionsweihnachtskalender.data.CalendarData
 import com.jcoding.lionsweihnachtskalender.effects.AnimatedShimmer
 import com.jcoding.lionsweihnachtskalender.repository.CalendarRepository
+import com.jcoding.lionsweihnachtskalender.screens.AddCalendar
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -232,11 +237,11 @@ fun HandleList(
         updateShowOnboarding(currentCalendarDataList.isEmpty())
     }
 
-    /*
-        val isLoading by viewModel.isLoading.collectAsState()
-        val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isLoading)*/
+
 
     val viewModel = viewModel<LibraryViewModel>()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isLoading)
 
     var isRefreshing by remember {
         mutableStateOf(false)
@@ -279,22 +284,7 @@ fun HandleList(
                     Text(text = "Kalenderbericht")
                 },
             )
-        }/*,
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                modifier = Modifier
-                    .padding(bottom = 16.dp),
-                onClick = {
-                    /*Toast.makeText(context, "Feature noch nicht verfügbar", Toast.LENGTH_SHORT)
-                        .show()*/
-                    AddCalendar("1234", context)
-                    viewModel.writeCalendarScan(9898, "Stefan")
-                }
-            ) {
-                Icon(Icons.Default.Add, contentDescription = null)
-                Text(text = "Neuer Eintrag")
-            }
-        }*/
+        },
     ) { innerPadding ->
         Column {
             if (showShimmer) {
@@ -324,15 +314,25 @@ fun HandleList(
                                 )
                                 { index, calendarItem ->
                                     Log.d("Index of LazyList: ", index.toString())
+                                    SwipeToDeleteContainer(
+                                        item = calendarItem,
+                                        onDeleted = { removingCalendarData ->
+                                            isSuccessfullyDeleted = viewModel.deleteCalendarItem(
+                                                removingCalendarData,
+                                                calendarItem.number
+                                            )
+                                            if (!isSuccessfullyDeleted) {
+                                                Toast.makeText(
+                                                    context,
+                                                    "Fehler beim Löschen",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
 
-/*                                        Text(
-                                            text = calendarItem.number.toString(),
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .background(MaterialTheme.colorScheme.background)
-                                                .padding(16.dp)
-                                        )*/
-                                        CalendarItem(calendarData = calendarItem)
+                                        }
+                                    ) { cItem ->
+                                        CalendarItem(calendarData = cItem)
+                                    }
 
                                 }
                             }
@@ -390,7 +390,7 @@ fun CalendarItem(calendarData: CalendarData) {
                 ) {
 
                     Text(
-                        text = "${calendarData.number}",
+                        text = "#" + "${calendarData.number}",
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                         fontWeight = FontWeight.Bold
                     )
@@ -405,6 +405,7 @@ fun CalendarItem(calendarData: CalendarData) {
                 if (expanded) {
                     Text(text = calendarData.date)
                     Text(text = calendarData.time)
+                    Text(text = calendarData.scanned.toString())
                 }
             }
             IconButton(onClick = { expanded = !expanded }) {
