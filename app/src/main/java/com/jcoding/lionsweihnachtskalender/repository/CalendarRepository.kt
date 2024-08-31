@@ -7,35 +7,40 @@ const val TAG = "CalendarRepository"
 
 object CalendarRepository {
 
-    private val currentNumbersList: MutableList<CalendarData> = mutableListOf()
+    private val calenderEntryList: MutableList<CalendarData> = mutableListOf()
 
 
-    fun getAllData() : List<CalendarData>{
-        return currentNumbersList
+    fun getAllData(): List<CalendarData> {
+        return calenderEntryList
     }
 
-    fun removeAllData(){
-        currentNumbersList.clear()
+    fun removeAllData() {
+        calenderEntryList.clear()
     }
 
-    fun addDataEntry(calendarData: CalendarData){
-        currentNumbersList.add(calendarData)
+    fun addDataEntry(calendarData: CalendarData) {
+        calenderEntryList.add(calendarData)
     }
 
-    fun removeDataEntry(calendarData: CalendarData, index: Int): Boolean{
+    fun removeDataEntry(calendarData: CalendarData, index: Int): Boolean {
 
-        if(index in currentNumbersList.indices){
-            if (index >= 0 && index < currentNumbersList.size){
-                currentNumbersList.removeAt(index)
+        if (index in calenderEntryList.indices) {
+            if (index >= 0 && index < calenderEntryList.size) {
+                calenderEntryList.removeAt(index)
                 return true
             } else return false
-        }else{
+        } else {
             Log.e(TAG, "Invalid index: $index")
             return false
         }
     }
 
-    fun contains (calendarData: CalendarData): Boolean{
-       return currentNumbersList.contains(calendarData)
+    fun containsNumber(number: Int): Boolean {
+        for (calendarData in calenderEntryList) {
+            if (calendarData.number == number) {
+                return true
+            }
+        }
+        return false
     }
 }

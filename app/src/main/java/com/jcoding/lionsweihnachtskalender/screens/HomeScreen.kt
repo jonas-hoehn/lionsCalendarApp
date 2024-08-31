@@ -65,12 +65,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.firebase.Firebase
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.database
 import com.jcoding.lionsweihnachtskalender.R
 import com.jcoding.lionsweihnachtskalender.camera.CameraManagement
-import com.jcoding.lionsweihnachtskalender.data.CalendarData
-import com.jcoding.lionsweihnachtskalender.repository.CalendarRepository
+import com.jcoding.lionsweihnachtskalender.data.CalendarDataFirebase
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
+private const val DATABASE_SCANS = "calendar-scans/"
+val database = Firebase.database
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
@@ -115,10 +121,6 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             onReportClicked = {},
         )
     }}
-
-
-
-
 
 @Composable
 fun HomeSection(
@@ -241,7 +243,7 @@ fun InputHandling(
             trailingIcon = {
                 if(text.length == maxChar){
                     IconButton(onClick = {
-                        AddCalendar(text = text, context = context)
+                        AddCalendar(scannedNumber = text, context = context)
 
 
                     }) {
@@ -269,7 +271,7 @@ fun InputHandling(
             ),
             keyboardActions = KeyboardActions(
                 onDone = {
-                    AddCalendar(text = text, context = context)
+                    AddCalendar(scannedNumber = text, context = context)
                     Log.d("ImeAction", "clicked")
                 }
             )
@@ -287,22 +289,25 @@ private fun InputHandPrev() {
     }
 }
 
-fun AddCalendar(text: String, context: Context): Boolean {
-    var errorMessage : Boolean = false
+fun AddCalendar(scannedNumber: String, context: Context): Boolean {
+    var errorMessage: Boolean = false
     Log.d("Trailing Icon", "Clicked")
     //Toast.makeText(context, "Trailing Icon clicked", Toast.LENGTH_LONG).show()
-    val checkIfAlreadyExists = CalendarData(text.toInt(), "12.08.2024","12:15",true) //FIXME
-    if (CalendarRepository.contains(checkIfAlreadyExists)) {
-        Toast.makeText(context, "Kalender wurde bereits eingelöst.", Toast.LENGTH_LONG).show()
-        errorMessage = true
-        return errorMessage
-    } else {
-        Toast.makeText(context, "Kalender eingelöst", Toast.LENGTH_LONG).show()
-        CalendarRepository.addDataEntry(checkIfAlreadyExists)
 
-    }
+    val newScanRef: DatabaseReference = database.getReference(DATABASE_SCANS + scannedNumber)
+
+    Toast.makeText(context, "Kalender eingelöst", Toast.LENGTH_LONG).show()
+    val now: Date = Date()
+    var formatter = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+    val formattedDate = formatter.format(now)
+    formatter = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+    val formattedTime = formatter.format(now)
+    val cDataFirebase =
+        CalendarDataFirebase(scannedNumber.toInt(), formattedDate, formattedTime, "Jonas", now.time)
+    newScanRef.setValue(cDataFirebase)
     return true
 }
+
 
 
 @Composable

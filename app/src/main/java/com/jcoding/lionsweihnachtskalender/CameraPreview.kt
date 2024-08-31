@@ -45,6 +45,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
 import com.jcoding.lionsweihnachtskalender.camera.TextRecognitionAnalyzer
 import com.jcoding.lionsweihnachtskalender.library.LibraryViewModel
+import com.jcoding.lionsweihnachtskalender.repository.CalendarRepository
 import com.jcoding.lionsweihnachtskalender.screens.AddCalendar
 
 private const val TAG = "CameraPreview"
@@ -83,7 +84,7 @@ fun CameraPreview(
         if (currentNumber != 0) {
             detectedText = currentNumber.toString()
             if (detectedText != "") {
-                val error = AddCalendar(text = detectedText, context = context)
+                val error = AddCalendar(detectedText, context = context)
                 AddCalendar(detectedText, context)
                 val viewModel = LibraryViewModel()
                 viewModel.writeCalendarScan(Integer.parseInt(detectedText), "Stefan")
@@ -151,6 +152,11 @@ fun CameraPreview(
             value = text,
             onValueChange = { newText ->
                 if (newText.length <= maxChar) {
+                    if (CalendarRepository.containsNumber(newText.toInt())) {
+                        Toast.makeText(context, "Die Zahl ist schon vergeben.", Toast.LENGTH_LONG)
+                            .show()
+                        return@OutlinedTextField
+                    }
                     currentCharLength = newText.length
                     text = newText
                 }
@@ -174,7 +180,7 @@ fun CameraPreview(
             trailingIcon = {
                 if (text.length == maxChar) {
                     IconButton(onClick = {
-                        AddCalendar(text = text, context = context)
+                        AddCalendar(text, context = context)
                         navController.navigate(Destinations.REPORT_ROUTE)
                         keyboardController?.hide()
                         text = ""
@@ -205,7 +211,7 @@ fun CameraPreview(
             ),
             keyboardActions = KeyboardActions(
                 onDone = {
-                    AddCalendar(text = text, context = context)
+                    AddCalendar(text, context = context)
                     keyboardController?.hide()
                     text = ""
                     Log.d("ImeAction", "clicked")

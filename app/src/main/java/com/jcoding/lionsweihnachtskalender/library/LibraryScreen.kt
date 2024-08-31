@@ -93,12 +93,14 @@ fun LibraryScreen(
     var showOnboarding by remember { mutableStateOf(false) }
 
     val viewModel = viewModel<LibraryViewModel>()
-    var listSize by remember { mutableStateOf(CalendarRepository.getAllData().size) }
+    var listSize = 0
 
     viewModel.listenForScanUpdates { dataSnapshot ->
         CalendarRepository.removeAllData()
         dataSnapshot.children.forEach {
-            val calendarData = it.getValue(CalendarData::class.java)
+            var calendarData = it.getValue(CalendarData::class.java)
+            //FIXME weil unschän
+            calendarData?.number = it.key!!?.toInt()!!
             if (calendarData != null) {
                 CalendarRepository.addDataEntry(calendarData)
             }
