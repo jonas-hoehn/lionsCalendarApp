@@ -18,6 +18,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -31,7 +32,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.compose.LIONSWeihnachtskalenderTheme
-import com.example.compose.jetsurvey.signinsignup.User
 import com.example.compose.jetsurvey.signinsignup.UserRepository
 import com.example.compose.stronglyDeemphasizedAlpha
 import com.google.firebase.auth.FirebaseAuth
@@ -81,7 +81,7 @@ fun OverviewScreen(
                     .padding(horizontal = 20.dp)
             )
 
-            OrLogoutFromApp()
+            OrLogoutFromApp(onLogoutClicked)
         }
 
     }
@@ -129,12 +129,13 @@ fun OptionsMenu(
 }
 
 @Composable
-fun OrLogoutFromApp(
+fun OrLogoutFromApp(onLogoutClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     auth = FirebaseAuth.getInstance()
     val onSubmit = {
         auth.signOut()
+        onLogoutClicked()
     }
 
     Column (
@@ -142,7 +143,6 @@ fun OrLogoutFromApp(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Bottom
     ){
-
         TextButton(
             onClick = onSubmit,
             modifier = Modifier
@@ -156,6 +156,8 @@ fun OrLogoutFromApp(
 
 @Composable
 private fun Branding(modifier: Modifier = Modifier) {
+
+    val user by UserRepository.managedUser.collectAsState()
 
     Column (
         modifier = modifier.wrapContentHeight(align = Alignment.CenterVertically)
@@ -173,8 +175,7 @@ private fun Branding(modifier: Modifier = Modifier) {
                 .padding(top = 24.dp)
                 .fillMaxWidth()
         )
-        val currentUser = UserRepository.getLoggedInUser() as User.LoggedInUser
-        Text("Hallo hier ist der User: ${currentUser.email} und die Rolle ist: ${currentUser.role}")
+        Text("Hallo hier ist der User: ${user.displayName} und die Rolle ist: ${user.role}")
     }
 }
 

@@ -479,7 +479,7 @@ fun OrGoToReport(
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = stronglyDeemphasizedAlpha),
             modifier = Modifier.paddingFromBaseline(top = 25.dp)
         )
-        OutlinedButton(
+       OutlinedButton(
             onClick = onReportClicked,
             modifier = Modifier
                 .fillMaxWidth()

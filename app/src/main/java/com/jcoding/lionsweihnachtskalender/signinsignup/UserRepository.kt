@@ -26,13 +26,15 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
-sealed class User {
+sealed class User(open val email: String = "", open val uid: String? = null, open val displayName: String? = null, open val role: String? = null) {
     @Immutable
-    data class LoggedInUser(val email: String, val uui: String? = null, var displayName: String? = null, var role: String? = null) : User() {
+    data class LoggedInUser(override val email: String, override val uid: String? = null, override var displayName: String? = null, override var role: String? = null) : User() {
         constructor() : this("", null, null, null)
     }
 
@@ -50,16 +52,11 @@ object UserRepository {
 
     private lateinit var auth: FirebaseAuth
 
-    private var _user: User = User.NoUserLoggedIn
-    val user: User
-       get() = _user
+    private val database = FirebaseDatabase.getInstance()
+    private val dbUserRef = database.getReference("users") // Replace "users" with your actual reference path
 
-    fun getLoggedInUser(): User {
-        return _user
-    }
-
-    val database = FirebaseDatabase.getInstance()
-    val dbUserRef = database.getReference("users") // Replace "users" with your actual reference path
+    private val _managedUser: MutableStateFlow<User> = MutableStateFlow(User.NoUserLoggedIn)
+    val managedUser = _managedUser.asStateFlow()
 
     fun signIn(email: String, password: String) {
 
@@ -77,11 +74,7 @@ object UserRepository {
                                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                                     if (dataSnapshot.exists()) {
                                         val userData = dataSnapshot.getValue(User.LoggedInUser::class.java) // Replace UserData with your data class
-                                        val loggedInUser = _user as User.LoggedInUser
-                                        loggedInUser.displayName = userData?.displayName
-                                        loggedInUser.role = userData?.role
-                                        // FIXME update UI according the role received
-                                        Log.d("UserRepository", "loggedInUser: $_user")
+                                        _managedUser.value = User.LoggedInUser(managedUser.value.email, managedUser.value.uid, userData!!.displayName, userData!!.role)
                                     } else {
                                         Log.d("UserRepository", "User data not found in the database for UID: ${auth.currentUser!!.uid}")
                                     }
@@ -124,7 +117,7 @@ object UserRepository {
         }
 
 
-        _user = User.LoggedInUser(email)
+        managedUser
     }
 
 
@@ -134,36 +127,25 @@ object UserRepository {
             // You can access user information here (e.g., user.uid, user.email)
             val email = currentUser!!.email.toString()
             val uuid = currentUser!!.uid
-            val displayName = currentUser!!.displayName
-            val role = "" // by default we do want have a role set!
 
-            _user = User.LoggedInUser(email,uuid,displayName,role)
+            _managedUser.value = User.LoggedInUser(email,uuid)
             Log.d("Auth changed", "User is signed in")
         } else {
             // User is signed out
             // FIXME
             // Redirect to login screen or handle the sign-out state
             Log.d("Auth changed", "User is signed out")
-            _user = User.NoUserLoggedIn
-            auth.signOut()
+            _managedUser.value = User.NoUserLoggedIn
         }
     }
 
     fun signInAsGuest() {
-        _user = User.GuestUser
-    }
-
-    fun isKnownUserEmail(email: String): Boolean {
-        // if the email contains "sign up" we consider it unknown
-        auth = FirebaseAuth.getInstance()
-        val firebaseUser = auth.currentUser
-        return firebaseUser != null;
-
+        _managedUser.value = User.GuestUser
     }
 
     fun signOut() {
         auth.signOut()
-        _user = User.NoUserLoggedIn
+        _managedUser.value = User.NoUserLoggedIn
     }
 }
 

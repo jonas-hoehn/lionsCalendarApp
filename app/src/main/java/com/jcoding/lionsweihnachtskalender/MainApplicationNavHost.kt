@@ -70,7 +70,7 @@ fun MainApplicationNavHost(
                     navController.navigate(REPORT_ROUTE)
                 },
                 onLogoutClicked = {
-                    navController.navigate(REPORT_ROUTE)
+                    navController.navigate(WELCOME_ROUTE)
                 }
             )
         }
