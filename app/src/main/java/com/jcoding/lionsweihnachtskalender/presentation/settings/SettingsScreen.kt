@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.IconButton
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -32,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -43,6 +45,7 @@ import com.example.compose.LIONSWeihnachtskalenderTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.jcoding.lionsweihnachtskalender.R
 import com.jcoding.lionsweihnachtskalender.overview.auth
+import kotlinx.coroutines.withContext
 
 @Composable
 fun SettingsScreen() {
@@ -101,6 +104,18 @@ fun OrLogoutFromAppInSettings(
 
 @Composable
 fun HeaderText() {
+    IconButton(
+        onClick = {
+            //TODO navigiere zum Homescreen
+        },
+        modifier = Modifier.padding(top = 20.dp)
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_home),
+            contentDescription = "",
+            tint = MaterialTheme.colorScheme.secondary
+        )
+    }
     Text(
         text = "Einstellungen",
         color = MaterialTheme.colorScheme.secondary,

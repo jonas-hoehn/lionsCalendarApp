@@ -30,6 +30,7 @@ class SignInViewModel(private val userRepository: UserRepository) : ViewModel() 
         onSignInComplete: () -> Unit,
     ) {
         userRepository.signIn(email, password)
+
         onSignInComplete()
     }
 

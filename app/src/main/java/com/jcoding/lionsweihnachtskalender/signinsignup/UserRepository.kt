@@ -52,7 +52,11 @@ object UserRepository {
 
     private var _user: User = User.NoUserLoggedIn
     val user: User
-        get() = _user
+       get() = _user
+
+    fun getLoggedInUser(): User {
+        return _user
+    }
 
     val database = FirebaseDatabase.getInstance()
     val dbUserRef = database.getReference("users") // Replace "users" with your actual reference path
@@ -97,9 +101,6 @@ object UserRepository {
                 }
             }
         }
-
-
-        _user = User.LoggedInUser(email)
     }
 
     fun signUp(email: String, password: String) {
