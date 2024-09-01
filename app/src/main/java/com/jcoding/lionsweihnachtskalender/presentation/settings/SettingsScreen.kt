@@ -42,8 +42,7 @@ import androidx.compose.ui.unit.sp
 import com.example.compose.LIONSWeihnachtskalenderTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.jcoding.lionsweihnachtskalender.R
-import com.jcoding.lionsweihnachtskalender.presentation.overview.OrLogoutFromApp
-import com.jcoding.lionsweihnachtskalender.presentation.overview.auth
+import com.jcoding.lionsweihnachtskalender.overview.auth
 
 @Composable
 fun SettingsScreen() {

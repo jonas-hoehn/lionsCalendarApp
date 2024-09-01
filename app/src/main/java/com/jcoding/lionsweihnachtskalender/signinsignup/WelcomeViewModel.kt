@@ -42,11 +42,13 @@ class WelcomeViewModel(private val userRepository: UserRepository) : ViewModel()
         onNavigateToSignIn: (email: String) -> Unit,
         onNavigateToSignUp: (email: String) -> Unit,
     ) {
-        if (userRepository.isKnownUserEmail(email)) {
+        onNavigateToSignIn(email)
+        //  FIXME
+        /* if (userRepository.isKnownUserEmail(email)) {
             onNavigateToSignIn(email)
         } else {
             onNavigateToSignUp(email)
-        }
+        }*/
     }
 
     fun signInAsGuest(

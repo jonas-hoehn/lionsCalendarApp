@@ -27,7 +27,6 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 import com.jcoding.lionsweihnachtskalender.data.CalendarData
-import com.jcoding.lionsweihnachtskalender.data.CalendarDataFirebase
 import com.jcoding.lionsweihnachtskalender.repository.CalendarRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -88,7 +87,7 @@ class LibraryViewModel : ViewModel(){
         val formattedDate = formatter.format(now)
         formatter = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
         val formattedTime = formatter.format(now)
-        val cDataFirebase = CalendarDataFirebase(number, formattedDate, formattedTime, cashier, now.time)
+        val cDataFirebase = CalendarData(number, formattedDate, formattedTime, cashier, now.time)
         myRef.setValue(cDataFirebase)
     }
 

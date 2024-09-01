@@ -70,7 +70,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.database
 import com.jcoding.lionsweihnachtskalender.R
 import com.jcoding.lionsweihnachtskalender.camera.CameraManagement
-import com.jcoding.lionsweihnachtskalender.data.CalendarDataFirebase
+import com.jcoding.lionsweihnachtskalender.data.CalendarData
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -302,8 +302,7 @@ fun AddCalendar(scannedNumber: String, context: Context): Boolean {
     val formattedDate = formatter.format(now)
     formatter = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
     val formattedTime = formatter.format(now)
-    val cDataFirebase =
-        CalendarDataFirebase(scannedNumber.toInt(), formattedDate, formattedTime, "Jonas", now.time)
+    val cDataFirebase = CalendarData(scannedNumber.toInt(), formattedDate, formattedTime, "Jonas", now.time)
     newScanRef.setValue(cDataFirebase)
     return true
 }

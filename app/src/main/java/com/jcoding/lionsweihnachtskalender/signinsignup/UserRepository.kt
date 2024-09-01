@@ -17,21 +17,25 @@
 package com.example.compose.jetsurvey.signinsignup
 
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.platform.LocalContext
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import kotlin.contracts.contract
 
 sealed class User {
     @Immutable
-    data class LoggedInUser(val email: String) : User()
+    data class LoggedInUser(val email: String, val uui: String? = null, var displayName: String? = null, var role: String? = null) : User() {
+        constructor() : this("", null, null, null)
+    }
+
     object GuestUser : User()
     object NoUserLoggedIn : User()
 }
@@ -50,16 +54,40 @@ object UserRepository {
     val user: User
         get() = _user
 
+    val database = FirebaseDatabase.getInstance()
+    val dbUserRef = database.getReference("users") // Replace "users" with your actual reference path
+
     fun signIn(email: String, password: String) {
 
         auth = FirebaseAuth.getInstance()
+        auth.addAuthStateListener(authListener)
 
         if(email.isNotEmpty() && password.isNotEmpty()){
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     auth.signInWithEmailAndPassword(email, password).await()
                     withContext(Dispatchers.Main){
-                        checkLoggedInState()
+                        if (auth.currentUser!= null)
+                            dbUserRef.child(auth.currentUser!!.uid).addListenerForSingleValueEvent(object :
+                                ValueEventListener {
+                                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                                    if (dataSnapshot.exists()) {
+                                        val userData = dataSnapshot.getValue(User.LoggedInUser::class.java) // Replace UserData with your data class
+                                        val loggedInUser = _user as User.LoggedInUser
+                                        loggedInUser.displayName = userData?.displayName
+                                        loggedInUser.role = userData?.role
+                                        // FIXME update UI according the role received
+                                        Log.d("UserRepository", "loggedInUser: $_user")
+                                    } else {
+                                        Log.d("UserRepository", "User data not found in the database for UID: ${auth.currentUser!!.uid}")
+                                    }
+                                }
+
+                                override fun onCancelled(error: DatabaseError) {
+                                    // Handle errors
+                                    println("Failed to read data: ${error.message}")
+                                }
+                            })
                     }
                 } catch (e: Exception){
                     withContext(Dispatchers.Main){
@@ -77,12 +105,13 @@ object UserRepository {
     fun signUp(email: String, password: String) {
         auth = FirebaseAuth.getInstance()
 
+
         if(email.isNotEmpty() && password.isNotEmpty()){
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     auth.createUserWithEmailAndPassword(email, password).await()
                     withContext(Dispatchers.Main){
-                        checkLoggedInState()
+                        // FIXME
                     }
                 } catch (e: Exception){
                     withContext(Dispatchers.Main){
@@ -97,11 +126,25 @@ object UserRepository {
         _user = User.LoggedInUser(email)
     }
 
-    private fun checkLoggedInState() {
-        if(auth.currentUser == null){
-            _user = User.NoUserLoggedIn
+
+    val authListener = FirebaseAuth.AuthStateListener { firebaseAuth ->val currentUser: FirebaseUser? = firebaseAuth.currentUser
+        if (currentUser != null) {
+            // User is signed in
+            // You can access user information here (e.g., user.uid, user.email)
+            val email = currentUser!!.email.toString()
+            val uuid = currentUser!!.uid
+            val displayName = currentUser!!.displayName
+            val role = "" // by default we do want have a role set!
+
+            _user = User.LoggedInUser(email,uuid,displayName,role)
+            Log.d("Auth changed", "User is signed in")
         } else {
-            _user = User.LoggedInUser(auth.currentUser!!.email.toString())
+            // User is signed out
+            // FIXME
+            // Redirect to login screen or handle the sign-out state
+            Log.d("Auth changed", "User is signed out")
+            _user = User.NoUserLoggedIn
+            auth.signOut()
         }
     }
 
@@ -113,11 +156,7 @@ object UserRepository {
         // if the email contains "sign up" we consider it unknown
         auth = FirebaseAuth.getInstance()
         val firebaseUser = auth.currentUser
-        if (firebaseUser == null) {
-            return !email.contains(email)
-        }
-
-        return !email.contains("signup")
+        return firebaseUser != null;
 
     }
 
