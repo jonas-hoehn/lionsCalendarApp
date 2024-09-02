@@ -29,8 +29,8 @@ fun SignInRoute(
     val signInViewModel: SignInViewModel = viewModel(factory = SignInViewModelFactory())
     SignInScreen(
         email = email,
-        onSignInSubmitted = { email, password ->
-            signInViewModel.signIn(email, password, onSignInSubmitted)
+        onSignInSubmitted = { emailIn, password ->
+            signInViewModel.signIn(emailIn, password, onSignInSubmitted)
         },
         onSignInAsGuest = {
             signInViewModel.signInAsGuest(onSignInAsGuest)

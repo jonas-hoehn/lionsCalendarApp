@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.compose.LIONSWeihnachtskalenderTheme
+import com.example.compose.jetsurvey.signinsignup.User
 import com.example.compose.jetsurvey.signinsignup.UserRepository
 import com.example.compose.stronglyDeemphasizedAlpha
 import com.google.firebase.auth.FirebaseAuth
@@ -100,13 +101,13 @@ fun OptionsMenu(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         //Composables of the options menu
-        Text(
+        /*Text(
             text = stringResource(id = R.string.choosing_option),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = stronglyDeemphasizedAlpha),
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(top = 64.dp, bottom = 12.dp)
-        )
+        )*/
 
         Button(
             onClick = onHomeClicked,
@@ -175,7 +176,16 @@ private fun Branding(modifier: Modifier = Modifier) {
                 .padding(top = 24.dp)
                 .fillMaxWidth()
         )
-        Text("Hallo hier ist der User: ${user.displayName} und die Rolle ist: ${user.role}")
+        if (user is User.LoggedInUser) {
+            Text(
+                text = "${user.displayName} (${user.role})",
+                style = MaterialTheme.typography.titleMedium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                .padding(top = 24.dp)
+                .fillMaxWidth()
+            )
+        }
     }
 }
 

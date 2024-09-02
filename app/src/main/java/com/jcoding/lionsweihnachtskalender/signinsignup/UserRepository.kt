@@ -22,6 +22,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.CoroutineScope
@@ -29,8 +30,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 sealed class User(open val email: String = "", open val uid: String? = null, open val displayName: String? = null, open val role: String? = null) {
     @Immutable
@@ -58,7 +62,11 @@ object UserRepository {
     private val _managedUser: MutableStateFlow<User> = MutableStateFlow(User.NoUserLoggedIn)
     val managedUser = _managedUser.asStateFlow()
 
-    fun signIn(email: String, password: String) {
+    fun getManagedUser(): User {
+      return _managedUser.value
+    }
+
+    fun signIn(email: String, password: String, onSignInComplete: () -> Unit) {
 
         auth = FirebaseAuth.getInstance()
         auth.addAuthStateListener(authListener)
@@ -66,40 +74,71 @@ object UserRepository {
         if(email.isNotEmpty() && password.isNotEmpty()){
             CoroutineScope(Dispatchers.IO).launch {
                 try {
+                    // FIXME the many onSignInComplete()
                     auth.signInWithEmailAndPassword(email, password).await()
-                    withContext(Dispatchers.Main){
-                        if (auth.currentUser!= null)
-                            dbUserRef.child(auth.currentUser!!.uid).addListenerForSingleValueEvent(object :
-                                ValueEventListener {
-                                override fun onDataChange(dataSnapshot: DataSnapshot) {
-                                    if (dataSnapshot.exists()) {
-                                        val userData = dataSnapshot.getValue(User.LoggedInUser::class.java) // Replace UserData with your data class
-                                        _managedUser.value = User.LoggedInUser(managedUser.value.email, managedUser.value.uid, userData!!.displayName, userData!!.role)
-                                    } else {
-                                        Log.d("UserRepository", "User data not found in the database for UID: ${auth.currentUser!!.uid}")
-                                    }
-                                }
-
-                                override fun onCancelled(error: DatabaseError) {
-                                    // Handle errors
-                                    println("Failed to read data: ${error.message}")
-                                }
-                            })
+                    if (auth.currentUser!= null) {
+                        withContext(Dispatchers.Main) {
+                            val userData = fetchUserData(dbUserRef, auth.currentUser!!.uid)
+                            if (userData != null) {
+                                _managedUser.value = User.LoggedInUser(
+                                    managedUser.value.email,
+                                    managedUser.value.uid,
+                                    userData.displayName,
+                                    userData.role
+                                )
+                            } else {
+                                // FIXME
+                                // Handle the case where user data is not found
+                                Log.d(
+                                    "UserRepository",
+                                    "User data not found for UID: ${auth.currentUser!!.uid}"
+                                )
+                            }
+                            onSignInComplete()
+                        }
+                    } else {
+                        onSignInComplete()
                     }
                 } catch (e: Exception){
                     withContext(Dispatchers.Main){
                         Log.e("Error beim Login", e.message.toString())
-                        //Toast.makeText(this@UserRepository, e.message, Toast.LENGTH_LONG).show()
+                        onSignInComplete()
                     }
+
                 }
             }
+        }
+        Log.d("UserRepository", "signIn done")
+    }
+
+    suspend fun fetchUserData(dbUserRef: DatabaseReference, uid: String): User.LoggedInUser? = suspendCancellableCoroutine { continuation ->
+        val listener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    val userData = dataSnapshot.getValue(User.LoggedInUser::class.java)
+                    continuation.resume(userData)
+                } else {
+                    Log.d("UserRepository", "User datanot found in the database for UID: $uid")
+                    continuation.resume(null) // Or resume with a specific error if needed
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                continuation.resumeWithException(error.toException())
+            }
+        }
+
+        dbUserRef.child(uid).addListenerForSingleValueEvent(listener)
+
+        continuation.invokeOnCancellation {
+            dbUserRef.child(uid).removeEventListener(listener)
         }
     }
 
     fun signUp(email: String, password: String) {
         auth = FirebaseAuth.getInstance()
 
-
+        // FIXME: entweder komplett implementieren oder rausnehmen
         if(email.isNotEmpty() && password.isNotEmpty()){
             CoroutineScope(Dispatchers.IO).launch {
                 try {
@@ -115,9 +154,6 @@ object UserRepository {
                 }
             }
         }
-
-
-        managedUser
     }
 
 
@@ -125,8 +161,8 @@ object UserRepository {
         if (currentUser != null) {
             // User is signed in
             // You can access user information here (e.g., user.uid, user.email)
-            val email = currentUser!!.email.toString()
-            val uuid = currentUser!!.uid
+            val email = currentUser.email.toString()
+            val uuid = currentUser.uid
 
             _managedUser.value = User.LoggedInUser(email,uuid)
             Log.d("Auth changed", "User is signed in")

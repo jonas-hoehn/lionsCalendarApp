@@ -2,7 +2,7 @@
 
 package com.jcoding.lionsweihnachtskalender
 
-import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -13,17 +13,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.compose.jetsurvey.signinsignup.SignInRoute
 import com.example.compose.jetsurvey.signinsignup.SignUpRoute
+import com.example.compose.jetsurvey.signinsignup.User
 import com.example.compose.jetsurvey.signinsignup.UserRepository
 import com.example.compose.jetsurvey.signinsignup.WelcomeRoute
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.jcoding.lionsweihnachtskalender.Destinations.MAINSCREEN_ROUTE
-import com.jcoding.lionsweihnachtskalender.Destinations.REPORT_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.OVERVIEW_ROUTE
+import com.jcoding.lionsweihnachtskalender.Destinations.REPORT_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.SIGN_IN_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.SIGN_UP_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.WELCOME_ROUTE
 import com.jcoding.lionsweihnachtskalender.camera.CameraManagement
-import com.jcoding.lionsweihnachtskalender.overview.OverviewScreen
 import com.jcoding.lionsweihnachtskalender.library.LibraryScreen
 import com.jcoding.lionsweihnachtskalender.overview.OverviewRoute
 
@@ -75,15 +75,21 @@ fun MainApplicationNavHost(
             )
         }
 
-        composable(SIGN_IN_ROUTE) {
+            composable(SIGN_IN_ROUTE) {
             val startingEmail = it.arguments?.getString("email")
             SignInRoute(
                 email = startingEmail,
                 onSignInSubmitted = {
-                    navController.navigate(MAINSCREEN_ROUTE)
+                    if (UserRepository.getManagedUser() is User.LoggedInUser) {
+                        navController.navigate(MAINSCREEN_ROUTE)
+                    } else {
+                        Toast.makeText(navController.context, "Login fehlgeschlagen", Toast.LENGTH_LONG).show()
+                        navController.navigate(SIGN_IN_ROUTE)
+                    }
                 },
                 onSignInAsGuest = {
-                    navController.navigate(MAINSCREEN_ROUTE)
+                    // FIXME
+                    //navController.navigate(MAINSCREEN_ROUTE)
                 },
                 onNavUp = navController::navigateUp,
             )
