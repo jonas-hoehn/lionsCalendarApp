@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.compose.jetsurvey.signinsignup
+package com.jcoding.lionsweihnachtskalender.signinsignup
 
 import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.content.res.Configuration.UI_MODE_NIGHT_YES

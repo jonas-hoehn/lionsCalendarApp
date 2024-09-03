@@ -11,11 +11,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.compose.jetsurvey.signinsignup.SignInRoute
-import com.example.compose.jetsurvey.signinsignup.SignUpRoute
-import com.example.compose.jetsurvey.signinsignup.User
-import com.example.compose.jetsurvey.signinsignup.UserRepository
-import com.example.compose.jetsurvey.signinsignup.WelcomeRoute
+import com.jcoding.lionsweihnachtskalender.signinsignup.SignInRoute
+import com.jcoding.lionsweihnachtskalender.signinsignup.SignUpRoute
+import com.jcoding.lionsweihnachtskalender.signinsignup.User
+import com.jcoding.lionsweihnachtskalender.signinsignup.UserRepository
+import com.jcoding.lionsweihnachtskalender.signinsignup.WelcomeRoute
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.jcoding.lionsweihnachtskalender.Destinations.MAINSCREEN_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.NO_ACC_PERM

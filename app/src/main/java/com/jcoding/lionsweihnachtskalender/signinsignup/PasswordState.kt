@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.compose.jetsurvey.signinsignup
+package com.jcoding.lionsweihnachtskalender.signinsignup
 
 class PasswordState :
     TextFieldState(validator = ::isPasswordValid, errorFor = ::passwordValidationError)

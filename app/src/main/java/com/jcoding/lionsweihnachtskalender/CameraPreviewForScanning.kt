@@ -44,12 +44,18 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
+import com.jcoding.lionsweihnachtskalender.signinsignup.UserRepository
+import com.google.firebase.Firebase
+import com.google.firebase.database.database
 import com.jcoding.lionsweihnachtskalender.camera.TextRecognitionAnalyzer
-import com.jcoding.lionsweihnachtskalender.library.LibraryViewModel
+import com.jcoding.lionsweihnachtskalender.data.CalendarData
 import com.jcoding.lionsweihnachtskalender.repository.CalendarRepository
-import com.jcoding.lionsweihnachtskalender.screens.AddCalendar
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 private const val TAG = "CameraPreview"
+val database = Firebase.database
 
 @Composable
 fun CameraPreviewForScanning(
@@ -85,21 +91,12 @@ fun CameraPreviewForScanning(
         if (currentNumber != 0) {
             detectedText = currentNumber.toString()
             if (detectedText != "") {
-                val error = AddCalendar(detectedText, context = context)
-                AddCalendar(detectedText, context)
-                val viewModel = LibraryViewModel()
-                viewModel.writeCalendarScan(Integer.parseInt(detectedText), "Stefan")
-                if (!error) {
-                    navController.navigate(Destinations.REPORT_ROUTE)
-                } else Unit
+                writeCalendarScan(Integer.parseInt(detectedText), UserRepository.getManagedUser().displayName.toString())
+                // FIXME check for error?
+                navController.navigate(Destinations.REPORT_ROUTE)
             }
         }
-
-
     }
-
-
-
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -182,7 +179,7 @@ fun CameraPreviewForScanning(
             trailingIcon = {
                 if (text.length == maxChar) {
                     IconButton(onClick = {
-                        AddCalendar(text, context = context)
+                        writeCalendarScan(Integer.parseInt(text), UserRepository.getManagedUser().displayName.toString())
                         navController.navigate(Destinations.REPORT_ROUTE)
                         keyboardController?.hide()
                         text = ""
@@ -213,7 +210,7 @@ fun CameraPreviewForScanning(
             ),
             keyboardActions = KeyboardActions(
                 onDone = {
-                    AddCalendar(text, context = context)
+                    writeCalendarScan(Integer.parseInt(detectedText), UserRepository.getManagedUser().displayName.toString())
                     keyboardController?.hide()
                     text = "" //FIXME hier könnte die Nullpointer Exception fliegen
                     Log.d("ImeAction", "clicked")
@@ -224,6 +221,16 @@ fun CameraPreviewForScanning(
 
 }
 
+fun writeCalendarScan(number: Int, cashier: String){
+    val myRef = database.getReference("calendar-scans/$number")
+    val now: Date = Date()
+    var formatter = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+    val formattedDate = formatter.format(now)
+    formatter = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+    val formattedTime = formatter.format(now)
+    val cDataFirebase = CalendarData(number, formattedDate, formattedTime, cashier, now.time)
+    myRef.setValue(cDataFirebase)
+}
 
 private fun startTextRecognition(
     context: Context,

@@ -2,7 +2,6 @@
 
 package com.jcoding.lionsweihnachtskalender.screens
 
-import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -62,19 +61,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.jcoding.lionsweihnachtskalender.signinsignup.UserRepository
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.firebase.Firebase
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.database
 import com.jcoding.lionsweihnachtskalender.R
 import com.jcoding.lionsweihnachtskalender.camera.MainScreen
-import com.jcoding.lionsweihnachtskalender.data.CalendarData
-import java.text.SimpleDateFormat
-import java.util.Date
+import com.jcoding.lionsweihnachtskalender.writeCalendarScan
 import java.util.Locale
-
-private const val DATABASE_SCANS = "calendar-scans/"
-val database = Firebase.database
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
@@ -85,29 +77,29 @@ fun HomeScreen(modifier: Modifier = Modifier) {
     }
 
 
-        Column (modifier) {
-            Spacer(Modifier.height(16.dp))
-            LogoBar(Modifier.padding(horizontal = 16.dp))
-            Spacer(Modifier.height(16.dp))
-            GreetingsSection(paddingValues = PaddingValues())
-            Spacer(Modifier.height(16.dp))
+    Column(modifier) {
+        Spacer(Modifier.height(16.dp))
+        LogoBar(Modifier.padding(horizontal = 16.dp))
+        Spacer(Modifier.height(16.dp))
+        GreetingsSection(paddingValues = PaddingValues())
+        Spacer(Modifier.height(16.dp))
 
-            Box(
-                modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.secondaryContainer),
-                contentAlignment = Alignment.Center
-            ){
-                HomeSection(title = R.string.manual_input){
-                    InputHandling(openCameraStateChange) { newState ->
-                        openCameraStateChange = newState
-                    }
-
+        Box(
+            modifier = Modifier
+                .padding(start = 16.dp, end = 16.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(MaterialTheme.colorScheme.secondaryContainer),
+            contentAlignment = Alignment.Center
+        ) {
+            HomeSection(title = R.string.manual_input) {
+                InputHandling(openCameraStateChange) { newState ->
+                    openCameraStateChange = newState
                 }
-            }
 
+            }
         }
+
+    }
 
     // Conditionally display MainContent based on state
     if (openCameraStateChange) {
@@ -118,7 +110,8 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             onLogoutClicked = {},
             onReportClicked = {},
         )
-    }}
+    }
+}
 
 @Composable
 fun HomeSection(
@@ -127,7 +120,7 @@ fun HomeSection(
     content: @Composable () -> Unit
 ) {
     // Implement composable here
-    Column (modifier) {
+    Column(modifier) {
         Text(
             stringResource(title).uppercase(Locale.getDefault()),
             style = MaterialTheme.typography.titleMedium,
@@ -146,18 +139,18 @@ fun LogoBar(
 ) {
     CenterAlignedTopAppBar(
         title = {
-        Text(
-            stringResource(id = R.string.app_name),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            style = TextStyle(
-                fontFamily = FontFamily.Default,
-                fontWeight = FontWeight.Normal,
-                fontSize = 20.sp,
-                color = MaterialTheme.colorScheme.primary
+            Text(
+                stringResource(id = R.string.app_name),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = TextStyle(
+                    fontFamily = FontFamily.Default,
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 20.sp,
+                    color = MaterialTheme.colorScheme.primary
+                )
             )
-        )
-    },
+        },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.background
         ),
@@ -167,12 +160,12 @@ fun LogoBar(
                     modifier = Modifier.size(50.dp, 50.dp),
                     contentDescription = "Lions Logo",
                     contentScale = ContentScale.Fit,
-                    painter = painterResource(id = R.drawable.lcl_emblem_2color_web))
+                    painter = painterResource(id = R.drawable.lcl_emblem_2color_web)
+                )
             }
         }
     )
 }
-
 
 
 // CAMERA STUFF
@@ -182,7 +175,7 @@ fun InputHandling(
     openCameraStateChange: Boolean,
     onCameraStateChanged: (Boolean) -> Unit,
 ) {
-    Column (
+    Column(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .padding(bottom = 16.dp),
@@ -194,7 +187,6 @@ fun InputHandling(
         }
 
 
-
         val paddingValues = PaddingValues()
         val cameraPermissionState = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestPermission()
@@ -203,11 +195,10 @@ fun InputHandling(
         }
 
 
-
         // possible other Composables
 
         val maxChar = 4
-        var currentCharLength : Int = 0
+        var currentCharLength = 0
         val context = LocalContext.current
 
 
@@ -217,7 +208,7 @@ fun InputHandling(
                 .fillMaxWidth(),
             value = text,
             onValueChange = { newText ->
-                if(newText.length <= maxChar){
+                if (newText.length <= maxChar) {
                     currentCharLength = newText.length
                     text = newText
                 }
@@ -239,21 +230,23 @@ fun InputHandling(
                 }
             },
             trailingIcon = {
-                if(text.length == maxChar){
+                if (text.length == maxChar) {
                     IconButton(onClick = {
-                        AddCalendar(scannedNumber = text, context = context)
-
-
+                        writeCalendarScan(
+                            Integer.parseInt(text),
+                            UserRepository.getManagedUser().displayName.toString()
+                        )
                     }) {
                         Icon(
                             imageVector = Icons.Filled.Check,
                             contentDescription = "Numbers Icon"
                         )
                     }
-                }else{
+                } else {
                     IconButton(onClick = {
                         Log.d("Trailing Icon", "Clicked")
-                        Toast.makeText(context, "Bitte vier Zahlen eingeben.", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Bitte vier Zahlen eingeben.", Toast.LENGTH_LONG)
+                            .show()
                     }) {
                         Icon(
                             imageVector = Icons.Filled.Block,
@@ -269,7 +262,10 @@ fun InputHandling(
             ),
             keyboardActions = KeyboardActions(
                 onDone = {
-                    AddCalendar(scannedNumber = text, context = context)
+                    writeCalendarScan(
+                        Integer.parseInt(text),
+                        UserRepository.getManagedUser().displayName.toString()
+                    )
                     Log.d("ImeAction", "clicked")
                 }
             )
@@ -283,61 +279,42 @@ fun InputHandling(
 @Composable
 private fun InputHandPrev() {
     InputHandling(openCameraStateChange = true) {
-        
+
     }
 }
-
-fun AddCalendar(scannedNumber: String, context: Context): Boolean {
-    var errorMessage: Boolean = false
-    Log.d("Trailing Icon", "Clicked")
-    //Toast.makeText(context, "Trailing Icon clicked", Toast.LENGTH_LONG).show()
-
-    val newScanRef: DatabaseReference = database.getReference(DATABASE_SCANS + scannedNumber)
-
-    Toast.makeText(context, "Kalender eingelöst", Toast.LENGTH_LONG).show()
-    val now: Date = Date()
-    var formatter = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-    val formattedDate = formatter.format(now)
-    formatter = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
-    val formattedTime = formatter.format(now)
-    val cDataFirebase = CalendarData(scannedNumber.toInt(), formattedDate, formattedTime, "Jonas", now.time)
-    newScanRef.setValue(cDataFirebase)
-    return true
-}
-
 
 
 @Composable
 fun GreetingsSection(paddingValues: PaddingValues) {
     val name = "User"
-    Box (
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = paddingValues.calculateTopPadding()),
-    ){
-        Row (
+    ) {
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 12.dp),
             verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.Start,
-        ){
-            Box (
-            ){
+        ) {
+            Box(
+            ) {
                 Text(
                     text = buildAnnotatedString {
                         withStyle(
                             style = SpanStyle(
                                 color = MaterialTheme.colorScheme.primary
                             )
-                        ){
+                        ) {
                             append("Welcome, ")
                         }
                         withStyle(
                             style = SpanStyle(
                                 color = MaterialTheme.colorScheme.secondaryContainer
                             )
-                        ){
+                        ) {
                             append(name)
                         }
                     },

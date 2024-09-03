@@ -39,8 +39,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.compose.LIONSWeihnachtskalenderTheme
-import com.example.compose.jetsurvey.signinsignup.User
-import com.example.compose.jetsurvey.signinsignup.UserRepository
+import com.jcoding.lionsweihnachtskalender.signinsignup.User
+import com.jcoding.lionsweihnachtskalender.signinsignup.UserRepository
 import com.example.compose.stronglyDeemphasizedAlpha
 import com.google.firebase.auth.FirebaseAuth
 import com.jcoding.lionsweihnachtskalender.R

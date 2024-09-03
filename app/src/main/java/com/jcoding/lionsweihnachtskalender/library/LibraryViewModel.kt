@@ -79,19 +79,6 @@ class LibraryViewModel : ViewModel(){
 
     }
 
-
-    fun writeCalendarScan(number: Int, cashier: String){
-        val myRef = database.getReference("calendar-scans/$number")
-        val now: Date = Date()
-        var formatter = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-        val formattedDate = formatter.format(now)
-        formatter = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
-        val formattedTime = formatter.format(now)
-        val cDataFirebase = CalendarData(number, formattedDate, formattedTime, cashier, now.time)
-        myRef.setValue(cDataFirebase)
-    }
-
-
     fun startLoading() {
         viewModelScope.launch {
             _isLoading.value = true

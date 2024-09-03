@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.compose.jetsurvey.signinsignup
+package com.jcoding.lionsweihnachtskalender.signinsignup
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
