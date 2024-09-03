@@ -1,19 +1,3 @@
-/*
- * Copyright 2020 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.example.compose.jetsurvey.signinsignup
 
 import android.util.Log
@@ -75,7 +59,6 @@ object UserRepository {
         if(email.isNotEmpty() && password.isNotEmpty()){
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    // FIXME the many onSignInComplete()
                     auth.signInWithEmailAndPassword(email, password).await()
                     if (auth.currentUser!= null) {
                         withContext(Dispatchers.Main) {
@@ -88,28 +71,23 @@ object UserRepository {
                                     userData.role
                                 )
                             } else {
-                                // FIXME
-                                // Handle the case where user data is not found
                                 Log.d(
                                     "UserRepository",
-                                    "User data not found for UID: ${auth.currentUser!!.uid}"
+                                    "User data nicht gefunden für UID: ${auth.currentUser!!.uid}"
                                 )
                             }
-                            onSignInComplete()
                         }
-                    } else {
-                        onSignInComplete()
                     }
                 } catch (e: Exception){
+                    Log.e("Error beim Login", e.message.toString())
+                } finally {
                     withContext(Dispatchers.Main){
-                        Log.e("Error beim Login", e.message.toString())
                         onSignInComplete()
                     }
-
                 }
+
             }
         }
-        Log.d("UserRepository", "signIn done")
     }
 
     suspend fun fetchUserData(dbUserRef: DatabaseReference, uid: String): User.LoggedInUser? = suspendCancellableCoroutine { continuation ->
