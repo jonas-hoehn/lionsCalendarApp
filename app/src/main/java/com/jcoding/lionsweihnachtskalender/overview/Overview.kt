@@ -4,14 +4,21 @@ import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -101,31 +108,24 @@ fun OptionsMenu(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         //Composables of the options menu
-        /*Text(
-            text = stringResource(id = R.string.choosing_option),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = stronglyDeemphasizedAlpha),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 64.dp, bottom = 12.dp)
-        )*/
 
         Button(
             onClick = onHomeClicked,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 28.dp, bottom = 3.dp)
+                .padding(top = 28.dp, bottom = 3.dp),
+            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
         ) {
             Text(
                 text = stringResource(id = R.string.go_to_homescreeen),
-                style = MaterialTheme.typography.titleSmall
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onPrimary,
             )
         }
 
         OrGoToReport(
             onReportClicked = onReportClicked ,
         )
-
-        //OrLogoutFromApp()
     }
 }
 

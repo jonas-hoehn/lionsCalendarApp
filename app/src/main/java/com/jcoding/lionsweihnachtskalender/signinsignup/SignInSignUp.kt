@@ -272,7 +272,7 @@ fun OrSignInAsGuest(
                 .fillMaxWidth()
                 .padding(top = 20.dp, bottom = 24.dp),
         ) {
-            Text(text = stringResource(id = R.string.sign_in_guest))
+            Text(text = stringResource(id = R.string.requestAccount))
         }
     }
 }

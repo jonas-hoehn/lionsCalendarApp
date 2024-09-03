@@ -29,10 +29,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Dialpad
-import androidx.compose.material.icons.filled.DocumentScanner
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -69,7 +67,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.database
 import com.jcoding.lionsweihnachtskalender.R
-import com.jcoding.lionsweihnachtskalender.camera.CameraManagement
+import com.jcoding.lionsweihnachtskalender.camera.MainScreen
 import com.jcoding.lionsweihnachtskalender.data.CalendarData
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -113,7 +111,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 
     // Conditionally display MainContent based on state
     if (openCameraStateChange) {
-        CameraManagement(
+        MainScreen(
             navHostController = NavHostController(LocalContext.current),
             modifier.fillMaxSize(),
             onHomeClicked = {},

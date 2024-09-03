@@ -139,8 +139,8 @@ fun OnboardingScreen(navController: NavHostController, updateShowOnboarding: (Bo
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
                 ),
                 scrollBehavior = scrollBehavior,
                 navigationIcon = {
@@ -268,8 +268,8 @@ fun HandleList(
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
                 ),
                 scrollBehavior = scrollBehavior,
                 navigationIcon = {
@@ -295,7 +295,7 @@ fun HandleList(
                 }
             } else {
                 Surface(
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.surface
                 ) {
 
                         Column(
@@ -371,7 +371,7 @@ fun CalendarItem(calendarData: CalendarData) {
     )
 
     Surface(
-        color = MaterialTheme.colorScheme.primaryContainer,
+        color = MaterialTheme.colorScheme.surfaceContainer,
         modifier = Modifier
             .padding(horizontal = 8.dp, vertical = 8.dp)
             .clip(RoundedCornerShape(12.dp)),
@@ -393,13 +393,13 @@ fun CalendarItem(calendarData: CalendarData) {
 
                     Text(
                         text = "#" + "${calendarData.number}",
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = if (calendarData.scanned) "Eingelöst" else "Nicht eingelöst",
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Normal
                     )
                 }

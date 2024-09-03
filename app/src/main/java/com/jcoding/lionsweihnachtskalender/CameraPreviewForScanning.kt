@@ -52,7 +52,7 @@ import com.jcoding.lionsweihnachtskalender.screens.AddCalendar
 private const val TAG = "CameraPreview"
 
 @Composable
-fun CameraPreview(
+fun CameraPreviewForScanning(
     navController: NavHostController,
     controller: LifecycleCameraController,
     modifier: Modifier = Modifier,
@@ -133,11 +133,11 @@ fun CameraPreview(
                 .fillMaxWidth()
                 .padding(16.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.primaryContainer)
+                .background(MaterialTheme.colorScheme.surface)
                 .wrapContentSize(Alignment.Center)
                 .padding(16.dp),
             text = detectedText,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1
         )
 
@@ -149,7 +149,7 @@ fun CameraPreview(
                 .align(Alignment.Center)
                 .offset(y = 300.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.primaryContainer)
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(16.dp),
             value = text,
             onValueChange = { newText ->
@@ -224,20 +224,6 @@ fun CameraPreview(
 
 }
 
-/*@Preview
-@Composable
-private fun CameraPrevPreview() {
-    val applicationContext: Context = LocalContext.current
-    val controller = remember {
-        LifecycleCameraController(applicationContext).apply {
-            setEnabledUseCases(
-                CameraController.IMAGE_CAPTURE or
-                        CameraController.VIDEO_CAPTURE
-            )
-        }
-    }
-    CameraPreview(navController = NavHostController)
-}*/
 
 private fun startTextRecognition(
     context: Context,

@@ -27,4 +27,6 @@
     <string name="show_less">Weniger Infos</string>
     <string name="show_more">Mehr Infos</string>
     <string name="settings">Einstellungen</string>
+    <string name="requestAccount">Profil anfragen</string>
+    <string name="requestAccountDetail">Bitte melden Sie sich unter der Mailadresse:</string>
 </resources>

@@ -56,6 +56,7 @@ object UserRepository {
 
     private lateinit var auth: FirebaseAuth
 
+
     private val database = FirebaseDatabase.getInstance()
     private val dbUserRef = database.getReference("users") // Replace "users" with your actual reference path
 
@@ -180,8 +181,10 @@ object UserRepository {
     }
 
     fun signOut() {
-        auth.signOut()
-        _managedUser.value = User.NoUserLoggedIn
+        if (auth.currentUser != null) {
+            auth.signOut()
+            _managedUser.value = User.NoUserLoggedIn
+        }
     }
 }
 

@@ -1,5 +1,6 @@
 @file:OptIn(ExperimentalMaterialApi::class)
 
+import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -41,18 +42,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.compose.LIONSWeihnachtskalenderTheme
 import com.google.firebase.auth.FirebaseAuth
+import com.jcoding.lionsweihnachtskalender.Destinations
 import com.jcoding.lionsweihnachtskalender.R
 import com.jcoding.lionsweihnachtskalender.overview.auth
+import com.jcoding.lionsweihnachtskalender.presentation.settings.components.DetailedProfileScreen
 import kotlinx.coroutines.withContext
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(
+    navController: NavHostController
+) {
     Scaffold (
         topBar = {
-            HeaderText()
+            HeaderText(navController)
         },
+        containerColor = MaterialTheme.colorScheme.background,
         content = { contentPadding ->
             Column (
                 modifier = Modifier.padding(contentPadding)
@@ -70,7 +78,7 @@ fun SettingsScreen() {
 @Composable
 fun SettingsScreenPreview() {
     LIONSWeihnachtskalenderTheme {
-        SettingsScreen()
+        SettingsScreen(navController = NavHostController(LocalContext.current))
     }
 
 }
@@ -96,29 +104,35 @@ fun OrLogoutFromAppInSettings(
                 .fillMaxWidth()
                 .padding(top = 20.dp, bottom = 24.dp),
         ) {
-            Text(text = stringResource(id = R.string.logout_from_app))
+            Text(
+                color = MaterialTheme.colorScheme.secondary,
+                text = stringResource(id = R.string.logout_from_app)
+            )
         }
     }
 }
 
 
 @Composable
-fun HeaderText() {
+fun HeaderText(
+    navController: NavHostController
+) {
     IconButton(
         onClick = {
             //TODO navigiere zum Homescreen
+            navController.navigate(Destinations.OVERVIEW_ROUTE)
         },
         modifier = Modifier.padding(top = 20.dp)
     ) {
         Icon(
             painter = painterResource(id = R.drawable.ic_home),
             contentDescription = "",
-            tint = MaterialTheme.colorScheme.secondary
+            tint = MaterialTheme.colorScheme.primary
         )
     }
     Text(
         text = "Einstellungen",
-        color = MaterialTheme.colorScheme.secondary,
+        color = MaterialTheme.colorScheme.primary,
         textAlign = TextAlign.Center,
         modifier = Modifier
             .fillMaxWidth()
@@ -136,7 +150,7 @@ fun ProfileCardUI(
             .fillMaxWidth()
             .height(150.dp)
             .padding(10.dp),
-        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainer),
         elevation = CardDefaults.cardElevation(2.dp),
         shape = CardDefaults.elevatedShape
     ) {
@@ -149,24 +163,26 @@ fun ProfileCardUI(
             ) {
                 Text(
                     text = "Mein Profil",
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                 )
 
                 Text(
                     text = "useremail@example.com",
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 10.sp,
                     fontWeight = FontWeight.SemiBold,
                 )
 
                 Button(
                     modifier = Modifier.padding(top = 10.dp),
-                    onClick = {},
+                    onClick = {
+
+                    },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.onPrimary,
-                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
                     ),
                     contentPadding = PaddingValues(horizontal = 30.dp),
                     elevation = ButtonDefaults.buttonElevation(
@@ -177,7 +193,6 @@ fun ProfileCardUI(
                 ) {
                     Text(
                         text = "Anzeigen",
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -202,7 +217,7 @@ fun GeneralOptionsUI() {
     ) {
         Text(
             text = "Allgemeines",
-            color = MaterialTheme.colorScheme.secondary,
+            color = MaterialTheme.colorScheme.onSurface,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
@@ -228,7 +243,7 @@ fun GeneralOptionsUI() {
 fun GeneralSettingItem(icon: Int, mainText: String, subText: String, onClick: () -> Unit) {
     Card(
         onClick = { onClick() },
-        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.secondaryContainer),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainer),
         modifier = Modifier
             .padding(bottom = 8.dp)
             .fillMaxWidth(),
@@ -247,7 +262,7 @@ fun GeneralSettingItem(icon: Int, mainText: String, subText: String, onClick: ()
                     modifier = Modifier
                         .size(34.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.onSecondary)
+                        .background(MaterialTheme.colorScheme.surfaceDim)
                 ) {
                     Icon(
                         painter = painterResource(id = icon),
@@ -263,14 +278,14 @@ fun GeneralSettingItem(icon: Int, mainText: String, subText: String, onClick: ()
                 ) {
                     Text(
                         text = mainText,
-                        color = MaterialTheme.colorScheme.secondary,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                     )
 
                     Text(
                         text = subText,
-                        color = Color.Gray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.offset(y = (-4).dp)
@@ -297,7 +312,7 @@ fun SupportOptionsUI() {
     ) {
         Text(
             text = "Support",
-            color = MaterialTheme.colorScheme.secondary,
+            color = MaterialTheme.colorScheme.onSurface,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
@@ -331,7 +346,7 @@ fun SupportOptionsUI() {
 fun SupportItem(icon: Int, mainText: String, onClick: () -> Unit) {
     Card(
         onClick = { onClick() },
-        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.secondaryContainer),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainer),
         modifier = Modifier
             .padding(bottom = 8.dp)
             .fillMaxWidth(),
@@ -350,7 +365,7 @@ fun SupportItem(icon: Int, mainText: String, onClick: () -> Unit) {
                     modifier = Modifier
                         .size(34.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.surface)
+                        .background(MaterialTheme.colorScheme.surfaceDim)
                 ) {
                     Icon(
                         painter = painterResource(id = icon),
@@ -364,7 +379,7 @@ fun SupportItem(icon: Int, mainText: String, onClick: () -> Unit) {
 
                 Text(
                     text = mainText,
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                 )

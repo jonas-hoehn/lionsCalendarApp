@@ -18,13 +18,15 @@ import com.example.compose.jetsurvey.signinsignup.UserRepository
 import com.example.compose.jetsurvey.signinsignup.WelcomeRoute
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.jcoding.lionsweihnachtskalender.Destinations.MAINSCREEN_ROUTE
+import com.jcoding.lionsweihnachtskalender.Destinations.NO_ACC_PERM
 import com.jcoding.lionsweihnachtskalender.Destinations.OVERVIEW_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.REPORT_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.SIGN_IN_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.SIGN_UP_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.WELCOME_ROUTE
-import com.jcoding.lionsweihnachtskalender.camera.CameraManagement
+import com.jcoding.lionsweihnachtskalender.camera.MainScreen
 import com.jcoding.lionsweihnachtskalender.library.LibraryScreen
+import com.jcoding.lionsweihnachtskalender.no_permission.NoAccountPermissionScreen
 import com.jcoding.lionsweihnachtskalender.overview.OverviewRoute
 
 object Destinations {
@@ -34,6 +36,9 @@ object Destinations {
     const val WELCOME_ROUTE = "welcome"
     const val SIGN_UP_ROUTE = "signup/{email}"
     const val SIGN_IN_ROUTE = "signin/{email}"
+    const val NO_ACC_PERM = "noAccountPermission"
+    const val SETTINGS_ROUTE = "settings"
+    const val DETAILED_PROFILE_ROUTE = "detailedProfileRoute"
 }
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -45,7 +50,7 @@ fun MainApplicationNavHost(
     NavHost(
         navController = navController,
         startDestination = WELCOME_ROUTE
-    ){
+    ) {
 
         composable(WELCOME_ROUTE) {
             WelcomeRoute(
@@ -56,12 +61,12 @@ fun MainApplicationNavHost(
                     navController.navigate("signup/$it")
                 },
                 onSignInAsGuest = {
-                    navController.navigate(OVERVIEW_ROUTE) //Hier war voher MAINSCREEN_ROUTE
+                    navController.navigate(NO_ACC_PERM) //Hier war voher MAINSCREEN_ROUTE
                 },
             )
         }
 
-        composable(OVERVIEW_ROUTE){
+        composable(OVERVIEW_ROUTE) {
             OverviewRoute(
                 onHomeClicked = {
                     navController.navigate(MAINSCREEN_ROUTE)
@@ -75,7 +80,7 @@ fun MainApplicationNavHost(
             )
         }
 
-            composable(SIGN_IN_ROUTE) {
+        composable(SIGN_IN_ROUTE) {
             val startingEmail = it.arguments?.getString("email")
             SignInRoute(
                 email = startingEmail,
@@ -83,13 +88,17 @@ fun MainApplicationNavHost(
                     if (UserRepository.getManagedUser() is User.LoggedInUser) {
                         navController.navigate(MAINSCREEN_ROUTE)
                     } else {
-                        Toast.makeText(navController.context, "Login fehlgeschlagen", Toast.LENGTH_LONG).show()
+                        Toast.makeText(
+                            navController.context,
+                            "Login fehlgeschlagen",
+                            Toast.LENGTH_LONG
+                        ).show()
                         navController.navigate(SIGN_IN_ROUTE)
                     }
                 },
                 onSignInAsGuest = {
                     // FIXME
-                    //navController.navigate(MAINSCREEN_ROUTE)
+                    navController.navigate(NO_ACC_PERM)
                 },
                 onNavUp = navController::navigateUp,
             )
@@ -111,8 +120,8 @@ fun MainApplicationNavHost(
 
 
 
-        composable(MAINSCREEN_ROUTE){
-            CameraManagement(
+        composable(MAINSCREEN_ROUTE) {
+            MainScreen(
                 navController,
                 modifier = Modifier.fillMaxSize(),
                 onReportClicked = {
@@ -124,9 +133,9 @@ fun MainApplicationNavHost(
                 onLogoutClicked = {
                     navController.navigate(OVERVIEW_ROUTE)
                 }
-                )
+            )
         }
-            composable(REPORT_ROUTE){
+        composable(REPORT_ROUTE) {
             LibraryScreen(
                 navController,
                 onReportClicked = {
@@ -135,103 +144,12 @@ fun MainApplicationNavHost(
             )
         }
 
-    }
-
-
-
-
-/*    MainContent(
-        hasPermission = cameraPermissionState.hasPermission,
-        onRequestPermission = cameraPermissionState::launchPermissionRequest,
-
-    )*/
-
-
-
-}
-
-/*@Composable
-private fun MainContent(
-    hasPermission: Boolean,
-    onRequestPermission: () -> Unit,
-
-) {
-
-    val showBottomBar = remember { mutableStateOf(true) }
-
-
-    if (hasPermission) {
-        val navController = rememberNavController()
-        Scaffold (
-            bottomBar = {
-                if(showBottomBar.value){
-
-                    BottomBar(
-                        navController = navController,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                }
-                        }
-        ){ innerPadding ->
-            val context = LocalContext.current
-            BottomNavGraph(navController = navController, innerPadding, showBottomBar)
-
-        }
-    } else {
-       NoPermissionScreen(onRequestPermission)
-    }
-}
-
-
-@Composable
-fun BottomBar(navController: NavHostController, modifier: Modifier) {
-    val screens = listOf(
-        BottomBarScreen.Home,
-        BottomBarScreen.Library,
-        BottomBarScreen.Settings,
-    )
-
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
-
-
-    NavigationBar (
-        containerColor = NavigationBarDefaults.containerColor,
-        contentColor = MaterialTheme.colorScheme.contentColorFor(containerColor),
-    ){
-        screens.forEach { screen ->
-            AddItem(screen = screen, currentDestination = currentDestination, navController = navController)
-        }
-
-    }
-
-}
-
-
-@Composable
-fun RowScope.AddItem (
-    screen: BottomBarScreen,
-    currentDestination: NavDestination?,
-    navController: NavHostController
-){
-    NavigationBarItem(
-        colors = NavigationBarItemDefaults.colors(
-            unselectedIconColor = LocalContentColor.current.copy(alpha = ContentAlpha.disabled),
-            unselectedTextColor = LocalContentColor.current.copy(alpha = ContentAlpha.disabled),
-        ),
-        icon = {
-            Icon(
-                imageVector = screen.icon,
-                contentDescription = "Navigation Icon"
+        composable(NO_ACC_PERM){
+            NoAccountPermissionScreen(
+                onNavUp = navController::navigateUp
             )
-        },
-        label = {
-            Text(text = screen.title)
-        },
-        selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
-        onClick = {
-            navController.navigate(screen.route)
         }
-    )
-}*/
+
+    }
+}
 
