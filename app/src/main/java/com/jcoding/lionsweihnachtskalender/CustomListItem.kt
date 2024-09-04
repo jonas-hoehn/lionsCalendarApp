@@ -32,7 +32,7 @@ fun CustomItem(calendarData: CalendarData) {
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = if (calendarData.scanned) "Eingelöst" else "Nicht eingelöst",
+            text = calendarData.date,
             color = MaterialTheme.colorScheme.onPrimaryContainer,
             fontWeight = FontWeight.Normal
         )
@@ -45,6 +45,5 @@ fun CustomItem(calendarData: CalendarData) {
 fun PreviewCustomItem(){
     CustomItem(calendarData = CalendarData(
         number = 1234,
-        scanned = true
     ))
 }

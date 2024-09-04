@@ -36,6 +36,7 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.rememberDismissState
+import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -48,10 +49,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -75,7 +78,9 @@ import com.jcoding.lionsweihnachtskalender.R
 import com.jcoding.lionsweihnachtskalender.data.CalendarData
 import com.jcoding.lionsweihnachtskalender.effects.AnimatedShimmer
 import com.jcoding.lionsweihnachtskalender.repository.CalendarRepository
+import com.jcoding.lionsweihnachtskalender.signinsignup.UserRepository
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -83,21 +88,21 @@ fun LibraryScreen(
     navController: NavHostController,
     onReportClicked: () -> Unit
 ) {
-
-
     var showOnboarding by remember { mutableStateOf(false) }
 
     val viewModel = viewModel<LibraryViewModel>()
     var listSize = 0
 
+    val userRole = UserRepository.getManagedUser().role
+
     viewModel.listenForScanUpdates { dataSnapshot ->
         CalendarRepository.removeAllData()
         dataSnapshot.children.forEach {
-            var calendarData = it.getValue(CalendarData::class.java)
+            val calendarData = it.getValue(CalendarData::class.java)
             //FIXME weil unschän
-            calendarData?.number = it.key!!?.toInt()!!
+            calendarData?.number = it.key!!.toInt()
             if (calendarData != null) {
-                CalendarRepository.addDataEntry(calendarData)
+                CalendarRepository.run { addDataEntry(calendarData) }
             }
             listSize = CalendarRepository.getAllData().size
         }
@@ -108,16 +113,24 @@ fun LibraryScreen(
             showOnboarding = it
         })
     } else {
-        HandleList(
-            navController,
-            onReportClicked,
-            listSize,
-            currentCalendarDataList = CalendarRepository.getAllData(),
-            showOnboarding = showOnboarding,
-            updateShowOnboarding = { newValue ->
-                showOnboarding = newValue
-            }
-        )
+
+        if(userRole != "admin"){ //FIXME sobald Liste unten implementiert ist
+            //Liste die auch Einträge löschen kann
+
+        } else{
+            HandleList(
+                navController,
+                onReportClicked,
+                listSize,
+                currentCalendarDataList = CalendarRepository.getAllData(),
+                showOnboarding = showOnboarding,
+                updateShowOnboarding = { newValue ->
+                    showOnboarding = newValue
+                }
+            )
+        }
+
+
     }
 
 
@@ -228,6 +241,11 @@ fun HandleList(
         mutableStateOf(true)
     }
 
+    var isRefreshing by remember {
+        mutableStateOf(false)
+    }
+    val scope = rememberCoroutineScope()
+
     LaunchedEffect(Unit) {
         delay(1000)
         showShimmer = false
@@ -235,28 +253,12 @@ fun HandleList(
     }
 
 
-
     val viewModel = viewModel<LibraryViewModel>()
-    val isLoading by viewModel.isLoading.collectAsState()
-    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isLoading)
 
-    var isRefreshing by remember {
-        mutableStateOf(false)
-    }
 
     var isSuccessfullyDeleted by remember {
         mutableStateOf(true)
     }
-
-    val onRefresh = {
-        isRefreshing = true
-        viewModel.startLoading()
-        isRefreshing = false
-    }
-
-    val refreshState = rememberPullRefreshState(refreshing = isRefreshing, onRefresh = onRefresh)
-
-
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -292,15 +294,43 @@ fun HandleList(
                 Surface(
                     color = MaterialTheme.colorScheme.surface
                 ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(top = innerPadding.calculateTopPadding())
+                            .padding(vertical = 4.dp)
+                    ) {
 
-                        Column(
-                            modifier = Modifier
-                                .padding(top = innerPadding.calculateTopPadding())
-                                .padding(vertical = 4.dp)
-                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                            ){
+                                PullToRefreshLazyColumn(
+                                    items = currentCalendarDataList,
+                                    content = { calendarData ->
+                                        CalendarItem(calendarData = calendarData)
+                                    },
+                                    isRefreshing = isRefreshing,
+                                    onRefresh = {
+                                        scope.launch {
+                                            isRefreshing = true
+                                            delay(3000) //simulated API Call
+                                            isRefreshing = false
+                                        }
+                                    }
+                                )
+                                Button(
+                                    onClick = {
+                                        isRefreshing = true
+                                    },
+                                    modifier = Modifier
+                                        .align(Alignment.BottomCenter)
+                                        .padding(bottom = 16.dp)
+                                    ) {
+                                    Text(text = stringResource(R.string.refresh))
+                                }
+                            }
 
-                            Box(modifier = Modifier.pullRefresh(refreshState)) {
-                            LazyColumn(
+/*                            LazyColumn(
                                 modifier = Modifier.fillMaxSize()
                             ) {
                                 itemsIndexed(
@@ -332,16 +362,9 @@ fun HandleList(
                                     }
 
                                 }
-                            }
+                            }*/
 
 
-                                PullRefreshIndicator(
-                                    isRefreshing,
-                                    refreshState,
-                                    Modifier.align(Alignment.TopCenter)
-                                )
-
-                            }
 
                     }
                 }
@@ -359,7 +382,7 @@ fun CalendarItem(calendarData: CalendarData) {
 
     var expanded by rememberSaveable { mutableStateOf(false) }
     val extraPadding by animateDpAsState(
-        targetValue = if (expanded) 48.dp else 0.dp,
+        targetValue = if (expanded) 4.dp else 0.dp,
         animationSpec = tween(
             durationMillis = 1000
         )
@@ -368,12 +391,12 @@ fun CalendarItem(calendarData: CalendarData) {
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainer,
         modifier = Modifier
-            .padding(horizontal = 8.dp, vertical = 8.dp)
+            .padding(horizontal = 8.dp, vertical = 4.dp)
             .clip(RoundedCornerShape(12.dp)),
     ) {
         Row(
             modifier = Modifier
-                .padding(24.dp)
+                .padding(16.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -393,19 +416,23 @@ fun CalendarItem(calendarData: CalendarData) {
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = if (calendarData.scanned) "Eingelöst" else "Nicht eingelöst",
+                        text = calendarData.date,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Normal
                     )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(text = calendarData.time)
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(text = calendarData.cashier)
                 }
 
                 if (expanded) {
-                    Text(text = calendarData.date)
-                    Text(text = calendarData.time)
-                    Text(text = calendarData.scanned.toString())
+                    Text(
+                        text = calendarData.cashier
+                    )
                 }
             }
-            IconButton(onClick = { expanded = !expanded }) {
+/*            IconButton(onClick = { expanded = !expanded }) {
                 Icon(
                     imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                     contentDescription = if (expanded) {
@@ -414,7 +441,7 @@ fun CalendarItem(calendarData: CalendarData) {
                         stringResource(R.string.show_more)
                     }
                 )
-            }
+            }*/
         }
     }
 }
@@ -428,34 +455,6 @@ private fun LibraryScreenPrev() {
         LibraryScreen(navController, onReportClicked = {
             navController.navigate(Destinations.REPORT_ROUTE)
         })
-    }
-}
-
-@Composable
-fun CustomList(calendarRepository: CalendarRepository, paddingValues: PaddingValues) {
-
-
-    val getAllData = calendarRepository.getAllData()
-
-    LazyColumn(
-        modifier = Modifier
-            .padding(top = paddingValues.calculateTopPadding())
-            .padding(bottom = paddingValues.calculateBottomPadding())
-            .padding(start = 12.dp, end = 12.dp, top = 12.dp)
-            .clip(RoundedCornerShape(8.dp)),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        itemsIndexed(
-            items = getAllData,
-            key = { index, calendarData ->
-                calendarData.number
-            }
-        )
-        { index, calendarItem ->
-            Log.d("Index of LazyList: ", index.toString())
-            CustomItem(calendarData = calendarItem)
-
-        }
     }
 }
 

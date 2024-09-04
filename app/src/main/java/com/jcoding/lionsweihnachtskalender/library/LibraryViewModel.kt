@@ -13,6 +13,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,6 +51,8 @@ class LibraryViewModel : ViewModel(){
     var color by mutableStateOf(Color.Transparent)
         private set
 
+
+
     init {
 
         startLoading()
@@ -82,7 +85,7 @@ class LibraryViewModel : ViewModel(){
     fun startLoading() {
         viewModelScope.launch {
             _isLoading.value = true
-            delay(9000)
+            delay(3000L)
             _isLoading.value = false
         }
     }

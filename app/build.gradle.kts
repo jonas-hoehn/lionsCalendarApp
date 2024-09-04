@@ -123,6 +123,7 @@ dependencies {
 
     //Pull down to fresh
     implementation("com.google.accompanist:accompanist-swiperefresh:0.28.0")
+    implementation(platform(libs.androidx.compose.bom.v2023080))
     implementation ("androidx.compose.material:material:1.3.0")
 
 }

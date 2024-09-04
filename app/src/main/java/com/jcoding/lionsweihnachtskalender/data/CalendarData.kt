@@ -6,6 +6,4 @@ data class CalendarData(
     var time: String = "",
     var cashier: String = "",
     var timestamp: Long = 0,
-
-    var scanned: Boolean = false
 )

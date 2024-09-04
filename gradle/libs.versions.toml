@@ -1,6 +1,7 @@
 [versions]
 accompanistPermissions = "0.19.0"
 agp = "8.5.1"
+composeBomVersion = "2023.08.0"
 firebaseBom = "33.1.2"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
@@ -23,6 +24,7 @@ firebaseAuth = "23.0.0"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
+androidx-compose-bom-v2023080 = { module = "androidx.compose:compose-bom", version.ref = "composeBomVersion" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-material-icons-extended-android = { module = "androidx.compose.material:material-icons-extended-android", version.ref = "materialIconsExtendedAndroid" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
