@@ -129,7 +129,7 @@ private fun MainScreenContent(
                 modifier = Modifier
                     .offset(16.dp, 32.dp)
             ) {
-                Icon(imageVector = Icons.AutoMirrored.Filled.Logout, contentDescription = "Switch Camera")
+                Icon(imageVector = Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout")
             }
         }
     }

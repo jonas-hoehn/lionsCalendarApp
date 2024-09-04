@@ -96,8 +96,6 @@ fun CameraPreviewForScanning(
             detectedText = currentNumber.toString()
             if (detectedText != "") {
                 writeCalendarScan(Integer.parseInt(detectedText), UserRepository.getManagedUser().displayName.toString())
-                // FIXME check for error?
-                navController.navigate(Destinations.REPORT_ROUTE)
             }
         }
     }
@@ -126,21 +124,6 @@ fun CameraPreviewForScanning(
             modifier = modifier
         )
 
-
-/*        Text(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .offset(y = 200.dp)
-                .fillMaxWidth()
-                .padding(16.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.surface)
-                .wrapContentSize(Alignment.Center)
-                .padding(16.dp),
-            text = detectedText,
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 1
-        )*/
         ClickableText(
             modifier = Modifier
                 .align(Alignment.Center)
@@ -156,90 +139,10 @@ fun CameraPreviewForScanning(
             ),
             onClick = {
                 Toast.makeText(context, "Clicked", Toast.LENGTH_LONG).show()
-                modifier.background(Color.Red)
+                navController.navigate(Destinations.REPORT_ROUTE)
             },
             maxLines = 1
         )
-
-
-/*        OutlinedTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .align(Alignment.Center)
-                .offset(y = 300.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(16.dp),
-            value = text,
-            onValueChange = { newText ->
-                if (newText.length <= maxChar) {
-                    if (CalendarRepository.containsNumber(newText.toInt())) {
-                        Toast.makeText(context, "Die Zahl $newText ist schon vergeben.", Toast.LENGTH_LONG)
-                            .show()
-                        return@OutlinedTextField
-                    }
-                    currentCharLength = newText.length
-                    text = newText
-                }
-            },
-            label = {
-                Text(text = "Kalendernummer")
-            },
-            placeholder = {
-                Text(text = "4-stellige PIN")
-            },
-            singleLine = true,
-            maxLines = 1,
-            leadingIcon = {
-                IconButton(onClick = {}) {
-                    Icon(
-                        imageVector = Icons.Filled.Dialpad,
-                        contentDescription = "Numbers Icon"
-                    )
-                }
-            },
-            trailingIcon = {
-                if (text.length == maxChar) {
-                    IconButton(onClick = {
-                        writeCalendarScan(Integer.parseInt(text), UserRepository.getManagedUser().displayName.toString())
-                        navController.navigate(Destinations.REPORT_ROUTE)
-                        keyboardController?.hide()
-                        text = ""
-
-                    }) {
-                        Icon(
-                            imageVector = Icons.Filled.Check,
-                            contentDescription = "Numbers Icon"
-                        )
-                    }
-                } else {
-                    IconButton(onClick = {
-                        Log.d("Trailing Icon", "Clicked")
-                        Toast.makeText(context, "Bitte vier Zahlen eingeben.", Toast.LENGTH_LONG)
-                            .show()
-                    }) {
-                        Icon(
-                            imageVector = Icons.Filled.Block,
-                            contentDescription = "Numbers Icon"
-                        )
-                    }
-                }
-
-            },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    writeCalendarScan(Integer.parseInt(detectedText), UserRepository.getManagedUser().displayName.toString())
-                    keyboardController?.hide()
-                    text = "" //FIXME hier könnte die Nullpointer Exception fliegen
-                    Log.d("ImeAction", "clicked")
-                }
-            ),
-        )*/
     }
 
 }
