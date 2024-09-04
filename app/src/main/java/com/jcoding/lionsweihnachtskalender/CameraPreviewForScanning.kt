@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -34,11 +35,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -123,7 +127,7 @@ fun CameraPreviewForScanning(
         )
 
 
-        Text(
+/*        Text(
             modifier = Modifier
                 .align(Alignment.Center)
                 .offset(y = 200.dp)
@@ -136,10 +140,29 @@ fun CameraPreviewForScanning(
             text = detectedText,
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1
+        )*/
+        ClickableText(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .offset(y = 200.dp)
+                .fillMaxWidth()
+                .padding(16.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(MaterialTheme.colorScheme.surface)
+                .wrapContentSize(Alignment.Center)
+                .padding(16. dp),
+            text = AnnotatedString(
+                detectedText
+            ),
+            onClick = {
+                Toast.makeText(context, "Clicked", Toast.LENGTH_LONG).show()
+                modifier.background(Color.Red)
+            },
+            maxLines = 1
         )
 
 
-        OutlinedTextField(
+/*        OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
@@ -216,9 +239,18 @@ fun CameraPreviewForScanning(
                     Log.d("ImeAction", "clicked")
                 }
             ),
-        )
+        )*/
     }
 
+}
+
+@Preview
+@Composable
+private fun CameraPreviewForScanningPrev() {
+    CameraPreviewForScanning(
+        navController = NavHostController(LocalContext.current),
+        controller = LifecycleCameraController(LocalContext.current)
+    )
 }
 
 fun writeCalendarScan(number: Int, cashier: String){

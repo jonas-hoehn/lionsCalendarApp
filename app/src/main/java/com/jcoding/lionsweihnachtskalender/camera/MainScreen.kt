@@ -99,6 +99,7 @@ private fun MainScreenContent(
             ){
                 OverviewScreen(
                     modifier = Modifier,
+                    navHostController = navHostController,
                     onReportClicked = onReportClicked,
                     onLogoutClicked = onLogoutClicked,
                     onHomeClicked = onHomeClicked

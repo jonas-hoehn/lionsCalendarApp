@@ -65,7 +65,9 @@ fun SettingsScreen(
             Column (
                 modifier = Modifier.padding(contentPadding)
             ){
-                ProfileCardUI()
+                ProfileCardUI(
+                    navController
+                )
                 GeneralOptionsUI()
                 SupportOptionsUI()
                 OrLogoutFromAppInSettings(modifier = Modifier.padding(contentPadding))
@@ -120,7 +122,7 @@ fun HeaderText(
     IconButton(
         onClick = {
             //TODO navigiere zum Homescreen
-            navController.navigate(Destinations.OVERVIEW_ROUTE)
+            navController.navigate(Destinations.MAINSCREEN_ROUTE)
         },
         modifier = Modifier.padding(top = 20.dp)
     ) {
@@ -144,6 +146,7 @@ fun HeaderText(
 
 @Composable
 fun ProfileCardUI(
+    navController: NavHostController
 ) {
     Card(
         modifier = Modifier
@@ -154,6 +157,9 @@ fun ProfileCardUI(
         elevation = CardDefaults.cardElevation(2.dp),
         shape = CardDefaults.elevatedShape
     ) {
+
+        val userEmail = FirebaseAuth.getInstance().currentUser?.email
+
         Row(
             modifier = Modifier.padding(20.dp),
             horizontalArrangement = Arrangement.Center
@@ -169,7 +175,7 @@ fun ProfileCardUI(
                 )
 
                 Text(
-                    text = "useremail@example.com",
+                    text = if(userEmail.isNullOrEmpty()) "Nicht Angemeldet" else userEmail,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 10.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -178,7 +184,7 @@ fun ProfileCardUI(
                 Button(
                     modifier = Modifier.padding(top = 10.dp),
                     onClick = {
-
+                        navController.navigate(Destinations.DETAILED_PROFILE_ROUTE)
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,

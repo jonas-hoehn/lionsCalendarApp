@@ -2,6 +2,7 @@
 
 package com.jcoding.lionsweihnachtskalender
 
+import SettingsScreen
 import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -17,10 +18,13 @@ import com.jcoding.lionsweihnachtskalender.signinsignup.User
 import com.jcoding.lionsweihnachtskalender.signinsignup.UserRepository
 import com.jcoding.lionsweihnachtskalender.signinsignup.WelcomeRoute
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.jcoding.lionsweihnachtskalender.Destinations.DETAILED_PROFILE_ROUTE
+import com.jcoding.lionsweihnachtskalender.Destinations.HOME_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.MAINSCREEN_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.NO_ACC_PERM
 import com.jcoding.lionsweihnachtskalender.Destinations.OVERVIEW_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.REPORT_ROUTE
+import com.jcoding.lionsweihnachtskalender.Destinations.SETTINGS_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.SIGN_IN_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.SIGN_UP_ROUTE
 import com.jcoding.lionsweihnachtskalender.Destinations.WELCOME_ROUTE
@@ -28,12 +32,15 @@ import com.jcoding.lionsweihnachtskalender.camera.MainScreen
 import com.jcoding.lionsweihnachtskalender.library.LibraryScreen
 import com.jcoding.lionsweihnachtskalender.no_permission.NoAccountPermissionScreen
 import com.jcoding.lionsweihnachtskalender.overview.OverviewRoute
+import com.jcoding.lionsweihnachtskalender.presentation.settings.components.DetailedProfileScreen
+import com.jcoding.lionsweihnachtskalender.screens.HomeScreen
 
 object Destinations {
     const val OVERVIEW_ROUTE = "overview"
     const val MAINSCREEN_ROUTE = "cameramanagement"
     const val REPORT_ROUTE = "repport"
     const val WELCOME_ROUTE = "welcome"
+    const val HOME_ROUTE = "home"
     const val SIGN_UP_ROUTE = "signup/{email}"
     const val SIGN_IN_ROUTE = "signin/{email}"
     const val NO_ACC_PERM = "noAccountPermission"
@@ -68,8 +75,9 @@ fun MainApplicationNavHost(
 
         composable(OVERVIEW_ROUTE) {
             OverviewRoute(
+                navController,
                 onHomeClicked = {
-                    navController.navigate(MAINSCREEN_ROUTE)
+                    navController.navigate(SETTINGS_ROUTE)
                 },
                 onReportClicked = {
                     navController.navigate(REPORT_ROUTE)
@@ -128,13 +136,33 @@ fun MainApplicationNavHost(
                     navController.navigate(REPORT_ROUTE)
                 },
                 onHomeClicked = {
-                    navController.navigate(OVERVIEW_ROUTE)
+                    navController.navigate(SETTINGS_ROUTE)
                 },
                 onLogoutClicked = {
                     navController.navigate(OVERVIEW_ROUTE)
                 }
             )
         }
+
+        composable(SETTINGS_ROUTE){
+            SettingsScreen(
+                navController
+            )
+        }
+
+        composable(DETAILED_PROFILE_ROUTE){
+            DetailedProfileScreen(
+                navController
+            )
+        }
+
+        composable(HOME_ROUTE){
+            HomeScreen(
+                modifier = Modifier,
+                navController
+            )
+        }
+
         composable(REPORT_ROUTE) {
             LibraryScreen(
                 navController,

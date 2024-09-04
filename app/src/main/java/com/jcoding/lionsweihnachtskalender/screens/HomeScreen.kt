@@ -25,6 +25,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Dialpad
@@ -61,6 +63,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.compose.LIONSWeihnachtskalenderTheme
 import com.jcoding.lionsweihnachtskalender.signinsignup.UserRepository
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.jcoding.lionsweihnachtskalender.R
@@ -70,7 +73,10 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    navHostController: NavHostController
+) {
 
     var openCameraStateChange by remember {
         mutableStateOf(false)
@@ -79,7 +85,10 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 
     Column(modifier) {
         Spacer(Modifier.height(16.dp))
-        LogoBar(Modifier.padding(horizontal = 16.dp))
+        LogoBar(
+            Modifier.padding(horizontal = 16.dp),
+            navHostController
+        )
         Spacer(Modifier.height(16.dp))
         GreetingsSection(paddingValues = PaddingValues())
         Spacer(Modifier.height(16.dp))
@@ -135,8 +144,11 @@ fun HomeSection(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LogoBar(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navHostController: NavHostController
 ) {
+
+    val context = LocalContext.current
     CenterAlignedTopAppBar(
         title = {
             Text(
@@ -151,8 +163,22 @@ fun LogoBar(
                 )
             )
         },
+        navigationIcon = {
+            IconButton(
+                onClick = {
+                    //Navigation
+                    Toast.makeText(context, "Back", Toast.LENGTH_SHORT).show()
+                    navHostController.popBackStack()
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.back),
+                )
+            }
+        },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
         ),
         actions = {
             IconButton(onClick = { /*TODO*/ }) {
@@ -163,7 +189,7 @@ fun LogoBar(
                     painter = painterResource(id = R.drawable.lcl_emblem_2color_web)
                 )
             }
-        }
+        },
     )
 }
 
@@ -220,7 +246,6 @@ fun InputHandling(
                 Text(text = "4-stellige PIN")
             },
             singleLine = true,
-            maxLines = 1,
             leadingIcon = {
                 IconButton(onClick = {}) {
                     Icon(
@@ -266,6 +291,7 @@ fun InputHandling(
                         Integer.parseInt(text),
                         UserRepository.getManagedUser().displayName.toString()
                     )
+
                     Log.d("ImeAction", "clicked")
                 }
             )
@@ -286,7 +312,8 @@ private fun InputHandPrev() {
 
 @Composable
 fun GreetingsSection(paddingValues: PaddingValues) {
-    val name = "User"
+    val currentUser = UserRepository.getManagedUser().displayName
+    val name = "$currentUser"
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -308,11 +335,11 @@ fun GreetingsSection(paddingValues: PaddingValues) {
                                 color = MaterialTheme.colorScheme.primary
                             )
                         ) {
-                            append("Welcome, ")
+                            append("Willkommen, ")
                         }
                         withStyle(
                             style = SpanStyle(
-                                color = MaterialTheme.colorScheme.secondaryContainer
+                                color = MaterialTheme.colorScheme.secondary
                             )
                         ) {
                             append(name)
@@ -328,5 +355,10 @@ fun GreetingsSection(paddingValues: PaddingValues) {
 @Preview
 @Composable
 private fun HomePrev() {
-    HomeScreen()
+    LIONSWeihnachtskalenderTheme {
+
+        HomeScreen(
+            navHostController = NavHostController(LocalContext.current)
+        )
+    }
 }
