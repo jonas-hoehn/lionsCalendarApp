@@ -11,6 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
@@ -39,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -80,7 +82,7 @@ fun CameraPreviewForScanning(
     val context: Context = LocalContext.current
     val cameraController: LifecycleCameraController =
         remember { LifecycleCameraController(context) }
-    var detectedText: String by remember { mutableStateOf("No Number detected yet..") }
+    var detectedText: String by remember { mutableStateOf("Keine Nummer erkannt") }
 
     fun onTextUpdated(updatedText: String) {
 
@@ -129,6 +131,7 @@ fun CameraPreviewForScanning(
                 .align(Alignment.Center)
                 .offset(y = 200.dp)
                 .fillMaxWidth()
+                .height(100.dp)
                 .padding(16.dp)
                 .clip(RoundedCornerShape(8.dp))
                 .background(MaterialTheme.colorScheme.surface)
@@ -137,8 +140,9 @@ fun CameraPreviewForScanning(
             text = AnnotatedString(
                 detectedText
             ),
+            style = MaterialTheme.typography.headlineSmall.copy(),
             onClick = {
-                Toast.makeText(context, "Clicked", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Kalender erkannt", Toast.LENGTH_LONG).show()
                 navController.navigate(Destinations.REPORT_ROUTE)
             },
             maxLines = 1

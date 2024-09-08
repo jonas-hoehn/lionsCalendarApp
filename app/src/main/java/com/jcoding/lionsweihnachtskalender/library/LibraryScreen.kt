@@ -117,6 +117,7 @@ fun LibraryScreen(
         if(userRole != "admin"){ //FIXME sobald Liste unten implementiert ist
             //Liste die auch Einträge löschen kann
 
+
         } else{
             HandleList(
                 navController,

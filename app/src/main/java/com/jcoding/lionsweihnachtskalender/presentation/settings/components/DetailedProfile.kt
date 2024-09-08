@@ -1,10 +1,12 @@
 package com.jcoding.lionsweihnachtskalender.presentation.settings.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -43,7 +46,10 @@ fun DetailedProfileScreen(
         },
         content = { contentPadding ->
             Column (
-                modifier = Modifier.padding(contentPadding)
+                modifier = Modifier
+                    .padding(contentPadding)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .fillMaxSize()
             ){
                 ProfileCardUIDetailed()
             }
@@ -61,28 +67,35 @@ fun DetailedProfileScreenPreview() {
 
 @Composable
 fun HeaderText() {
-    IconButton(
-        onClick = {
-            //TODO navigiere zum Homescreen
-        },
-        modifier = Modifier.padding(top = 20.dp)
+
+    Row (
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.surfaceContainer),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_back_arrow),
-            contentDescription = "",
-            tint = MaterialTheme.colorScheme.secondary
+        IconButton(
+            onClick = {
+                //TODO navigiere zum Homescreen
+            },
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_back_arrow),
+                contentDescription = "",
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+        }
+        Text(
+            text = "Mein Profil",
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 30.dp, bottom = 10.dp),
+            fontWeight = FontWeight.ExtraBold,
+            fontSize = 16.sp
         )
     }
-    Text(
-        text = "Mein Profil",
-        color = MaterialTheme.colorScheme.secondary,
-        textAlign = TextAlign.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 30.dp, bottom = 10.dp),
-        fontWeight = FontWeight.ExtraBold,
-        fontSize = 16.sp
-    )
+
 }
 
 @Composable
@@ -93,7 +106,7 @@ fun ProfileCardUIDetailed(
             .fillMaxWidth()
             .height(150.dp)
             .padding(10.dp),
-        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainer),
         elevation = CardDefaults.cardElevation(2.dp),
         shape = CardDefaults.elevatedShape
     ) {
@@ -106,7 +119,7 @@ fun ProfileCardUIDetailed(
             ) {
                 Text(
                     text = "Vor- und Zuname",
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                 )
