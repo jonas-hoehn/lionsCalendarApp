@@ -44,4 +44,13 @@ object CalendarRepository {
         }
         return false
     }
+
+    fun getCalendarDataByNumber(number: Int): CalendarData {
+        for (calendarData in calenderEntryList) {
+            if (calendarData.number == number) {
+                return calendarData
+            }
+        }
+        return CalendarData()
+    }
 }

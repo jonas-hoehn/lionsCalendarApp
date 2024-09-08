@@ -17,17 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Block
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Dialpad
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,10 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -83,23 +70,23 @@ fun CameraPreviewForScanning(
     val cameraController: LifecycleCameraController =
         remember { LifecycleCameraController(context) }
     var detectedText: String by remember { mutableStateOf("Keine Nummer erkannt") }
+    var validTextInfo: String = "❌"
+    var isValidText : Boolean by remember { mutableStateOf( false) }
+    var shownText: String by remember { mutableStateOf("Keine Nummer erkannt") }
+
+    MaterialTheme.colorScheme.surface
+    var backgroundColor: Color by remember { mutableStateOf(Color(255,255,255,)) }
 
     fun onTextUpdated(updatedText: String) {
 
-        val filteredString = updatedText.replace("[^0-9]".toRegex(), "")
 
-        Log.d(TAG, "onTextUpdated: $filteredString")
-        var currentNumber: Int = 0
-        if (filteredString.isNotEmpty() && filteredString.length <= 4) {
-            currentNumber = filteredString.toInt()
+        detectedText = updatedText.replace("[^#0-9]*".toRegex(), "")
+        isValidText =  ("#[0-9]{4}".toRegex().matches(detectedText))
+        validTextInfo=  if (isValidText) { "✅"} else { "❌" }
+        backgroundColor = if (isValidText) { Color(0xFF90EE90) } else { Color(255,255,255,)}
+        shownText = detectedText + " " + validTextInfo
 
-        }
-        if (currentNumber != 0) {
-            detectedText = currentNumber.toString()
-            if (detectedText != "") {
-                writeCalendarScan(Integer.parseInt(detectedText), UserRepository.getManagedUser().displayName.toString())
-            }
-        }
+        Log.d(TAG, "onTextUpdated: $detectedText $isValidText $validTextInfo")
     }
 
     Box(
@@ -134,16 +121,42 @@ fun CameraPreviewForScanning(
                 .height(100.dp)
                 .padding(16.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.surface)
+                .background(backgroundColor)
                 .wrapContentSize(Alignment.Center)
                 .padding(16. dp),
             text = AnnotatedString(
-                detectedText
+                shownText
             ),
             style = MaterialTheme.typography.headlineSmall.copy(),
             onClick = {
-                Toast.makeText(context, "Kalender erkannt", Toast.LENGTH_LONG).show()
-                navController.navigate(Destinations.REPORT_ROUTE)
+                if (isValidText) {
+                    // remove first character
+                    detectedText = detectedText.drop(1)
+
+                    // FIXME an den anderen Stellen, wo die Nummer eingelöst werden kann,
+                    // wenn möglich nicht den Code duplizieren, sondern den Code in eine Funktion auslagern
+                    try {
+                        val number = Integer.parseInt(detectedText)
+                        if (CalendarRepository.containsNumber(number)) {
+                            // Fixme -> Ein Toast ist nicht sinnvoll
+                            //  Snackbar?
+                            //  AlertDialog?
+                            val cd = CalendarRepository.getCalendarDataByNumber(number)
+                            Toast.makeText(context, "Kein Rabatt mehr möglich. Die Nummer ${cd.number } wurde am ${cd.date} um ${cd.time} schon verwendet (KassiererIn: $cd.cashier). Wenden Sie sich bei Fragen an die Kassenaufsicht.", Toast.LENGTH_LONG).show()
+                        } else
+                        {
+                            // Fixme -> auch hier ist der Toast nicht angebracht
+                            //  Snackbar?
+                            //  AlertDialog?
+                            writeCalendarScan(number, UserRepository.getManagedUser().displayName.toString())
+                            Toast.makeText(context, "Der Kalender wurde erfasst. Bitte jetzt über die Kasse scannen.", Toast.LENGTH_LONG).show()
+                            navController.navigate(Destinations.REPORT_ROUTE)
+                        }
+
+                    } catch (e: NumberFormatException) {
+                        Toast.makeText(context, "$detectedText ist KEINE valide Kalendernummer", Toast.LENGTH_LONG).show()
+                    }
+                }
             },
             maxLines = 1
         )

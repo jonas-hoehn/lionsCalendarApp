@@ -143,6 +143,7 @@ fun ManualInput(
         trailingIcon = {
             if (text.length == maxChar) {
                 IconButton(onClick = {
+                    // Fixme -> Check wi bei CameraPreviewForScanning -> CLickableText.onClick
                     writeCalendarScan(
                         Integer.parseInt(text),
                         UserRepository.getManagedUser().displayName.toString()
@@ -174,6 +175,7 @@ fun ManualInput(
         ),
         keyboardActions = KeyboardActions(
             onDone = {
+                // Fixme -> Check wie bei CameraPreviewForScanning -> CLickableText.onClick
                 writeCalendarScan(Integer.parseInt(text), UserRepository.getManagedUser().displayName.toString())
                 navHostController.navigate(Destinations.MAINSCREEN_ROUTE)
                 Log.d("ImeAction", "clicked")

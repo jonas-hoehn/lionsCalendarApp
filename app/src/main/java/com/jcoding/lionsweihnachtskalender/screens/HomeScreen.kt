@@ -257,6 +257,7 @@ fun InputHandling(
             trailingIcon = {
                 if (text.length == maxChar) {
                     IconButton(onClick = {
+                        // Fixme -> Check wie bei CameraPreviewForScanning -> CLickableText.onClick
                         writeCalendarScan(
                             Integer.parseInt(text),
                             UserRepository.getManagedUser().displayName.toString()
