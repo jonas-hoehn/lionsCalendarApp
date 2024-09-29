@@ -154,12 +154,13 @@ fun CameraPreviewForScanning(
                         val number = Integer.parseInt(detectedText)
                         if (CalendarRepository.containsNumber(number)) {
                             val cd = CalendarRepository.getCalendarDataByNumber(number)
-/*                            scope.launch {
+                            scope.launch {
                                 snackbarHostState.showSnackbar(
                                     message = "Kein Rabatt mehr möglich. Die Nummer ${cd.number } wurde am ${cd.date} um ${cd.time} schon verwendet (KassiererIn: $cd.cashier). Wenden Sie sich bei Fragen an die Kassenaufsicht.",
                                     actionLabel = "Okay!"
                                 )
-                            }*/
+                                // FIXME: sollte erst zugehen, wenn ok gedrückt wird
+                            }
                             scope.launch {
 
                                 cameraViewModel.eventFlow.collectLatest {
