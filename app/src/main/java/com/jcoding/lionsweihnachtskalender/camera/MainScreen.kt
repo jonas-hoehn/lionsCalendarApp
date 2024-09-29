@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.jcoding.lionsweihnachtskalender.signinsignup.UserRepository
-import com.jcoding.lionsweihnachtskalender.CameraPreviewForScanning
 import com.jcoding.lionsweihnachtskalender.Destinations
 import com.jcoding.lionsweihnachtskalender.data.MainCameraViewModel
 import com.jcoding.lionsweihnachtskalender.overview.OverviewScreen

@@ -1,4 +1,4 @@
-package com.jcoding.lionsweihnachtskalender
+package com.jcoding.lionsweihnachtskalender.camera
 
 import android.content.Context
 import android.util.Log
@@ -17,11 +17,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material.SnackbarHost
+import androidx.compose.material.SnackbarHostState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,9 +43,11 @@ import androidx.navigation.NavHostController
 import com.jcoding.lionsweihnachtskalender.signinsignup.UserRepository
 import com.google.firebase.Firebase
 import com.google.firebase.database.database
-import com.jcoding.lionsweihnachtskalender.camera.TextRecognitionAnalyzer
+import com.jcoding.lionsweihnachtskalender.Destinations
 import com.jcoding.lionsweihnachtskalender.data.CalendarData
 import com.jcoding.lionsweihnachtskalender.repository.CalendarRepository
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -63,6 +68,15 @@ fun CameraPreviewForScanning(
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
+
+
+    //Snackbar
+    val snackbarHostState = remember {
+        SnackbarHostState()
+    }
+    val scope = rememberCoroutineScope()
+
+
     val maxChar = 4
     var currentCharLength: Int = 0
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -73,6 +87,7 @@ fun CameraPreviewForScanning(
     var validTextInfo: String = "❌"
     var isValidText : Boolean by remember { mutableStateOf( false) }
     var shownText: String by remember { mutableStateOf("Keine Nummer erkannt") }
+    val cameraViewModel: CameraViewModel = CameraViewModel()
 
     MaterialTheme.colorScheme.surface
     var backgroundColor: Color by remember { mutableStateOf(Color(255,255,255,)) }
@@ -84,7 +99,7 @@ fun CameraPreviewForScanning(
         isValidText =  ("#[0-9]{4}".toRegex().matches(detectedText))
         validTextInfo=  if (isValidText) { "✅"} else { "❌" }
         backgroundColor = if (isValidText) { Color(0xFF90EE90) } else { Color(255,255,255,)}
-        shownText = detectedText + " " + validTextInfo
+        shownText = "$detectedText $validTextInfo"
 
         Log.d(TAG, "onTextUpdated: $detectedText $isValidText $validTextInfo")
     }
@@ -138,16 +153,32 @@ fun CameraPreviewForScanning(
                     try {
                         val number = Integer.parseInt(detectedText)
                         if (CalendarRepository.containsNumber(number)) {
-                            // Fixme -> Ein Toast ist nicht sinnvoll
-                            //  Snackbar?
-                            //  AlertDialog?
                             val cd = CalendarRepository.getCalendarDataByNumber(number)
-                            Toast.makeText(context, "Kein Rabatt mehr möglich. Die Nummer ${cd.number } wurde am ${cd.date} um ${cd.time} schon verwendet (KassiererIn: $cd.cashier). Wenden Sie sich bei Fragen an die Kassenaufsicht.", Toast.LENGTH_LONG).show()
+/*                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = "Kein Rabatt mehr möglich. Die Nummer ${cd.number } wurde am ${cd.date} um ${cd.time} schon verwendet (KassiererIn: $cd.cashier). Wenden Sie sich bei Fragen an die Kassenaufsicht.",
+                                    actionLabel = "Okay!"
+                                )
+                            }*/
+                            scope.launch {
+
+                                cameraViewModel.eventFlow.collectLatest {
+                                    when(it){
+                                        is CameraViewModel.UIEvent.ShowSnackbar -> {
+                                            snackbarHostState.showSnackbar(
+                                                message = it.message,
+                                                actionLabel = "Okay!"
+                                            )
+                                }}
+                            }}
                         } else
                         {
-                            // Fixme -> auch hier ist der Toast nicht angebracht
-                            //  Snackbar?
-                            //  AlertDialog?
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = "${number} verwendet",
+                                    actionLabel = "Okay!"
+                                )
+                            }
                             writeCalendarScan(number, UserRepository.getManagedUser().displayName.toString())
                             Toast.makeText(context, "Der Kalender wurde erfasst. Bitte jetzt über die Kasse scannen.", Toast.LENGTH_LONG).show()
                             navController.navigate(Destinations.REPORT_ROUTE)
@@ -161,6 +192,11 @@ fun CameraPreviewForScanning(
             maxLines = 1
         )
     }
+
+    SnackbarHost(
+        hostState = snackbarHostState,
+        modifier = Modifier.padding(bottom = 16.dp)
+    )
 
 }
 

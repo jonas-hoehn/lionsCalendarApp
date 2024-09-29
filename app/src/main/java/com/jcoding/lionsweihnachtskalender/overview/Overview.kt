@@ -6,14 +6,9 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
@@ -23,9 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Dialpad
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -57,12 +50,11 @@ import androidx.navigation.NavHostController
 import com.example.compose.LIONSWeihnachtskalenderTheme
 import com.jcoding.lionsweihnachtskalender.signinsignup.User
 import com.jcoding.lionsweihnachtskalender.signinsignup.UserRepository
-import com.example.compose.stronglyDeemphasizedAlpha
 import com.google.firebase.auth.FirebaseAuth
 import com.jcoding.lionsweihnachtskalender.Destinations
 import com.jcoding.lionsweihnachtskalender.R
 import com.jcoding.lionsweihnachtskalender.library.OrGoToReport
-import com.jcoding.lionsweihnachtskalender.writeCalendarScan
+import com.jcoding.lionsweihnachtskalender.camera.writeCalendarScan
 
 lateinit var auth: FirebaseAuth
 
