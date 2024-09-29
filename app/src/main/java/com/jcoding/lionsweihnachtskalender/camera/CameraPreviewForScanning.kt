@@ -152,11 +152,12 @@ fun CameraPreviewForScanning(
                     // wenn möglich nicht den Code duplizieren, sondern den Code in eine Funktion auslagern
                     try {
                         val number = Integer.parseInt(detectedText)
+                        // FIXME: SH aus unerfindlichen Gründen ist die List beim Start noch leer, nach dem ersten Scan geht es..
                         if (CalendarRepository.containsNumber(number)) {
                             val cd = CalendarRepository.getCalendarDataByNumber(number)
                             scope.launch {
                                 snackbarHostState.showSnackbar(
-                                    message = "Kein Rabatt mehr möglich. Die Nummer ${cd.number } wurde am ${cd.date} um ${cd.time} schon verwendet (KassiererIn: $cd.cashier). Wenden Sie sich bei Fragen an die Kassenaufsicht.",
+                                    message = "Kein Rabatt mehr möglich. Die Nummer ${cd.number } wurde am ${cd.date} um ${cd.time} schon verwendet (KassiererIn: ${cd.cashier}). Wenden Sie sich bei Fragen an die Kassenaufsicht.",
                                     actionLabel = "Okay!"
                                 )
                                 // FIXME: sollte erst zugehen, wenn ok gedrückt wird
