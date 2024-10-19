@@ -39,7 +39,7 @@ class TextRecognitionAnalyzer(
                 textRecognizer.process(inputImage)
                     .addOnSuccessListener { visionText: Text ->
                         val detectedText: String = visionText.text
-                        if (detectedText.isNotBlank()) {
+                        if (detectedText.isNotBlank() && isValidText(detectedText)) {
                             onDetectedTextUpdated(detectedText)
                         }
                     }
@@ -53,5 +53,9 @@ class TextRecognitionAnalyzer(
             exception?.printStackTrace()
             imageProxy.close()
         }
+    }
+
+    private fun isValidText(text: String): Boolean {
+        return text.matches(Regex("#\\d{4}"))
     }
 }

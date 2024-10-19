@@ -32,6 +32,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -39,6 +40,8 @@ import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -223,6 +226,34 @@ fun <T> SwipeToDeleteContainer(
 
 }
 
+@Preview
+@Composable
+private fun prevHandleList(
+    navController: NavHostController = rememberNavController(),
+    onReportClicked: () -> Unit = {},
+    listSize: Int = 100, // Set a default list size
+    currentCalendarDataList: List<CalendarData> = (1..listSize).map {
+        CalendarData(
+            number = it,
+            date = "2024-10-19",
+            time = "12:38:49",
+            cashier = "TestCashier",
+            timestamp = System.currentTimeMillis()
+        )
+    }, // Create a list of CalendarData objects
+    showOnboarding: Boolean = false,
+    updateShowOnboarding: (Boolean) -> Unit = {}
+) {
+    HandleList(
+        navController = navController,
+        onReportClicked = onReportClicked,
+        listSize = listSize,
+        currentCalendarDataList = currentCalendarDataList,
+        showOnboarding = showOnboarding,
+        updateShowOnboarding = updateShowOnboarding
+    )
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
@@ -285,6 +316,17 @@ fun HandleList(
                 },
             )
         },
+        floatingActionButton = {
+            FloatingActionButton(
+                modifier = Modifier.padding(8.dp),
+                onClick = {
+                    isRefreshing = true
+                }
+            ) {
+                Icon(Icons.Default.Refresh, contentDescription = "Refresh Icon")
+            }
+        },
+        floatingActionButtonPosition = FabPosition.End
     ) { innerPadding ->
         Column {
             if (showShimmer) {
@@ -298,74 +340,22 @@ fun HandleList(
                     Column(
                         modifier = Modifier
                             .padding(top = innerPadding.calculateTopPadding())
-                            .padding(vertical = 4.dp)
                     ) {
 
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                            ){
-                                PullToRefreshLazyColumn(
-                                    items = currentCalendarDataList,
-                                    content = { calendarData ->
-                                        CalendarItem(calendarData = calendarData)
-                                    },
-                                    isRefreshing = isRefreshing,
-                                    onRefresh = {
-                                        scope.launch {
-                                            isRefreshing = true
-                                            delay(3000) //simulated API Call
-                                            isRefreshing = false
-                                        }
-                                    }
-                                )
-                                Button(
-                                    onClick = {
+                            PullToRefreshLazyColumn(
+                                items = currentCalendarDataList,
+                                content = { calendarData ->
+                                    CalendarItem(calendarData = calendarData)
+                                },
+                                isRefreshing = isRefreshing,
+                                onRefresh = {
+                                    scope.launch {
                                         isRefreshing = true
-                                    },
-                                    modifier = Modifier
-                                        .align(Alignment.BottomCenter)
-                                        .padding(bottom = 16.dp)
-                                    ) {
-                                    Text(text = stringResource(R.string.refresh))
-                                }
-                            }
-
-/*                            LazyColumn(
-                                modifier = Modifier.fillMaxSize()
-                            ) {
-                                itemsIndexed(
-                                    items = currentCalendarDataList,
-                                    key = { index, calendarData ->
-                                        calendarData.number
+                                        delay(3000) //simulated API Call
+                                        isRefreshing = false
                                     }
-                                )
-                                { index, calendarItem ->
-                                    Log.d("Index of LazyList: ", index.toString())
-                                    SwipeToDeleteContainer(
-                                        item = calendarItem,
-                                        onDeleted = { removingCalendarData ->
-                                            isSuccessfullyDeleted = viewModel.deleteCalendarItem(
-                                                removingCalendarData,
-                                                calendarItem.number
-                                            )
-                                            if (!isSuccessfullyDeleted) {
-                                                Toast.makeText(
-                                                    context,
-                                                    "Fehler beim Löschen",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            }
-
-                                        }
-                                    ) { cItem ->
-                                        CalendarItem(calendarData = cItem)
-                                    }
-
                                 }
-                            }*/
-
-
+                            )
 
                     }
                 }
@@ -433,16 +423,6 @@ fun CalendarItem(calendarData: CalendarData) {
                     )
                 }
             }
-/*            IconButton(onClick = { expanded = !expanded }) {
-                Icon(
-                    imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = if (expanded) {
-                        stringResource(R.string.show_less)
-                    } else {
-                        stringResource(R.string.show_more)
-                    }
-                )
-            }*/
         }
     }
 }

@@ -62,14 +62,6 @@ fun CameraPreviewForScanning(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {}
 ) {
-    var text by remember {
-        mutableStateOf("")
-    }
-
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-
-
     //Snackbar
     val snackbarHostState = remember {
         SnackbarHostState()
@@ -77,14 +69,12 @@ fun CameraPreviewForScanning(
     val scope = rememberCoroutineScope()
 
 
-    val maxChar = 4
-    var currentCharLength: Int = 0
     val lifecycleOwner = LocalLifecycleOwner.current
     val context: Context = LocalContext.current
     val cameraController: LifecycleCameraController =
         remember { LifecycleCameraController(context) }
     var detectedText: String by remember { mutableStateOf("Keine Nummer erkannt") }
-    var validTextInfo: String = "❌"
+    var validTextInfo = "❌"
     var isValidText : Boolean by remember { mutableStateOf( false) }
     var shownText: String by remember { mutableStateOf("Keine Nummer erkannt") }
     val cameraViewModel: CameraViewModel = CameraViewModel()
@@ -92,22 +82,33 @@ fun CameraPreviewForScanning(
     MaterialTheme.colorScheme.surface
     var backgroundColor: Color by remember { mutableStateOf(Color(255,255,255,)) }
 
+    //
     fun onTextUpdated(updatedText: String) {
 
 
-        detectedText = updatedText.replace("[^#0-9]*".toRegex(), "")
+        shownText = if (updatedText.matches(Regex("\\d{4}"))) {
+            "#$updatedText" // Add '#' if valid
+        } else {
+            updatedText // Keep original text if invalid
+        }
+
+
+
+/*  FIXME
+detectedText = updatedText.replace("[^#0-9]*".toRegex(), "")
         isValidText =  ("#[0-9]{4}".toRegex().matches(detectedText))
         validTextInfo=  if (isValidText) { "✅"} else { "❌" }
         backgroundColor = if (isValidText) { Color(0xFF90EE90) } else { Color(255,255,255,)}
         shownText = "$detectedText $validTextInfo"
 
-        Log.d(TAG, "onTextUpdated: $detectedText $isValidText $validTextInfo")
+        Log.d(TAG, "onTextUpdated: $detectedText $isValidText $validTextInfo")*/
     }
 
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
 
+        // Starts text recognition and provides the camera
         AndroidView(
             factory = {
                 PreviewView(it).apply {
@@ -138,13 +139,61 @@ fun CameraPreviewForScanning(
                 .clip(RoundedCornerShape(8.dp))
                 .background(backgroundColor)
                 .wrapContentSize(Alignment.Center)
-                .padding(16. dp),
+                .padding(16.dp),
             text = AnnotatedString(
                 shownText
             ),
             style = MaterialTheme.typography.headlineSmall.copy(),
             onClick = {
-                if (isValidText) {
+
+                if(shownText.matches(Regex("#\\d{4}"))) {
+                    val calendarNumber = shownText.drop(1)
+
+                    try {
+                        val number = Integer.parseInt(calendarNumber)
+                        if (CalendarRepository.containsNumber(number)) {
+                            val cd = CalendarRepository.getCalendarDataByNumber(number)
+                            scope.launch {
+                                cameraViewModel.eventFlow.collectLatest {
+                                    when (it) {
+                                        is CameraViewModel.UIEvent.ShowSnackbar -> {
+                                            snackbarHostState.showSnackbar(
+                                                message = it.message,
+                                                actionLabel = "Okay!"
+                                            )
+
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = "${number} verwendet",
+                                    actionLabel = "Okay!"
+                                )
+                            }
+                            writeCalendarScan(
+                                number,
+                                UserRepository.getManagedUser().displayName.toString()
+                            )
+                            Toast.makeText(
+                                context,
+                                "Der Kalender wurde erfasst. Bitte jetzt über die Kasse scannen.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            navController.navigate(Destinations.REPORT_ROUTE)
+                        }
+                    } catch (e: NumberFormatException) {
+                        Toast.makeText(
+                            context,
+                            "$e $detectedText ist KEINE valide Kalendernummer",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+
+/*                if (isValidText) {
                     // remove first character
                     detectedText = detectedText.drop(1)
 
@@ -152,7 +201,6 @@ fun CameraPreviewForScanning(
                     // wenn möglich nicht den Code duplizieren, sondern den Code in eine Funktion auslagern
                     try {
                         val number = Integer.parseInt(detectedText)
-                        // FIXME: SH aus unerfindlichen Gründen ist die List beim Start noch leer, nach dem ersten Scan geht es..
                         if (CalendarRepository.containsNumber(number)) {
                             val cd = CalendarRepository.getCalendarDataByNumber(number)
                             scope.launch {
@@ -187,9 +235,9 @@ fun CameraPreviewForScanning(
                         }
 
                     } catch (e: NumberFormatException) {
-                        Toast.makeText(context, "$detectedText ist KEINE valide Kalendernummer", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "$e $detectedText ist KEINE valide Kalendernummer", Toast.LENGTH_LONG).show()
                     }
-                }
+                }*/
             },
             maxLines = 1
         )
@@ -211,6 +259,9 @@ private fun CameraPreviewForScanningPrev() {
     )
 }
 
+
+// adds the scanned calendar to the Firebase Database using userRef and it's credentials
+// FIXME: Sollte eigentlich eine eigene Action sein (!)
 fun writeCalendarScan(number: Int, cashier: String){
     val myRef = database.getReference("calendar-scans/$number")
     val now: Date = Date()
@@ -222,6 +273,9 @@ fun writeCalendarScan(number: Int, cashier: String){
     myRef.setValue(cDataFirebase)
 }
 
+
+// starts the text recognition process using the LifecycleCameraController and the provided onDetectedTextUpdated callback
+//FIXME: Sollte eigentlich das # Problem in TextRecognitionAnalyzer lösen!
 private fun startTextRecognition(
     context: Context,
     cameraController: LifecycleCameraController,
