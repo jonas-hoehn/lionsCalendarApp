@@ -74,15 +74,12 @@ fun CameraPreviewForScanning(
     val cameraController: LifecycleCameraController =
         remember { LifecycleCameraController(context) }
     var detectedText: String by remember { mutableStateOf("Keine Nummer erkannt") }
-/*    var validTextInfo = "❌"
-    var isValidText : Boolean by remember { mutableStateOf( false) }*/
     var shownText: String by remember { mutableStateOf("Keine Nummer erkannt") }
     val cameraViewModel: CameraViewModel = CameraViewModel()
 
     MaterialTheme.colorScheme.surface
     var backgroundColor: Color by remember { mutableStateOf(Color(255,255,255)) }
 
-    //
     fun onTextUpdated(updatedText: String) {
 
         if (updatedText != shownText) {
@@ -135,53 +132,43 @@ fun CameraPreviewForScanning(
             ),
             style = MaterialTheme.typography.headlineSmall.copy(),
             onClick = {
-
-                if(shownText.matches(Regex("#\\d{4}"))) {
-                    val calendarNumber = shownText.drop(1)
-
-                    try {
-                        val number = Integer.parseInt(calendarNumber)
-                        if (CalendarRepository.containsNumber(number)) {
-                            val cd = CalendarRepository.getCalendarDataByNumber(number)
-                            scope.launch {
-                                cameraViewModel.eventFlow.collectLatest {
-                                    when (it) {
-                                        is CameraViewModel.UIEvent.ShowSnackbar -> {
-                                            snackbarHostState.showSnackbar(
-                                                message = it.message,
-                                                actionLabel = "Okay!"
-                                            )
-
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    message = "${number} verwendet",
-                                    actionLabel = "Okay!"
-                                )
-                            }
-                            writeCalendarScan(
-                                number,
-                                UserRepository.getManagedUser().displayName.toString()
+                val calendarNumber = shownText.drop(1)
+                try {
+                    val number = Integer.parseInt(calendarNumber)
+                    if (CalendarRepository.containsNumber(number)) {
+                        val cd = CalendarRepository.getCalendarDataByNumber(number)
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "Kein Rabatt mehr möglich. Die Nummer ${cd.number } wurde am ${cd.date} um ${cd.time} schon verwendet (KassiererIn: ${cd.cashier}). Wenden Sie sich bei Fragen an die Kassenaufsicht.",
+                                actionLabel = "Okay!"
                             )
-                            Toast.makeText(
-                                context,
-                                "Der Kalender wurde erfasst. Bitte jetzt über die Kasse scannen.",
-                                Toast.LENGTH_LONG
-                            ).show()
-                            navController.navigate(Destinations.REPORT_ROUTE)
                         }
-                    } catch (e: NumberFormatException) {
+                    } else {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "${number} verwendet",
+                                actionLabel = "Okay!"
+                            )
+                        }
+                        writeCalendarScan(
+                            number,
+                            UserRepository.getManagedUser().displayName.toString()
+                        )
                         Toast.makeText(
                             context,
-                            "$e $detectedText ist KEINE valide Kalendernummer",
+                            "Der Kalender wurde erfasst. Bitte jetzt über die Kasse scannen.",
                             Toast.LENGTH_LONG
                         ).show()
+                        navController.navigate(Destinations.REPORT_ROUTE)
                     }
+                } catch (e: NumberFormatException) {
+                    Toast.makeText(
+                        context,
+                        "$e $detectedText ist KEINE valide Kalendernummer",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
+
 
 /*                if (isValidText) {
                     // remove first character
