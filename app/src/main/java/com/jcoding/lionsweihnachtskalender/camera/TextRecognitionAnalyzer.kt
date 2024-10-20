@@ -1,6 +1,7 @@
 package com.jcoding.lionsweihnachtskalender.camera
 
 import android.media.Image
+import android.util.Log
 import androidx.annotation.OptIn
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
@@ -39,8 +40,10 @@ class TextRecognitionAnalyzer(
                 textRecognizer.process(inputImage)
                     .addOnSuccessListener { visionText: Text ->
                         val detectedText: String = visionText.text
-                        if (detectedText.isNotBlank() && isValidText(detectedText)) {
-                            onDetectedTextUpdated(detectedText)
+                        Log.d("DetectedText", "Detected text: $detectedText")
+                        val matchingNumber = getMatchingNumber(detectedText)
+                        if (matchingNumber.isNotBlank()) {
+                            onDetectedTextUpdated(matchingNumber)
                         }
                     }
                     .addOnCompleteListener {
@@ -55,7 +58,14 @@ class TextRecognitionAnalyzer(
         }
     }
 
-    private fun isValidText(text: String): Boolean {
-        return text.matches(Regex("#\\d{4}"))
+    private fun getMatchingNumber(text: String): String {
+        val regex = Regex("#\\d{4}")
+        val matchResult = regex.find(text)
+
+        if (matchResult != null) {
+            return matchResult.value
+        } else {
+            return ""
+        }
     }
 }

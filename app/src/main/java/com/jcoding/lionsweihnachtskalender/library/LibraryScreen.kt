@@ -5,6 +5,7 @@ package com.jcoding.lionsweihnachtskalender.library
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import androidx.camera.video.internal.workaround.VideoEncoderInfoWrapper
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -39,6 +40,7 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
@@ -55,6 +57,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -94,52 +97,184 @@ fun LibraryScreen(
     var showOnboarding by remember { mutableStateOf(false) }
 
     val viewModel = viewModel<LibraryViewModel>()
+    val calendarDataList by viewModel.calenderDataList.observeAsState(emptyList())
+    val isLoading by viewModel.isLoading.observeAsState(true)
+
     var listSize = 0
 
     val userRole = UserRepository.getManagedUser().role
 
-    viewModel.listenForScanUpdates { dataSnapshot ->
-        CalendarRepository.removeAllData()
-        dataSnapshot.children.forEach {
-            val calendarData = it.getValue(CalendarData::class.java)
-            //FIXME weil unschän
-            calendarData?.number = it.key!!.toInt()
-            if (calendarData != null) {
-                CalendarRepository.run { addDataEntry(calendarData) }
-            }
-            listSize = CalendarRepository.getAllData().size
-        }
-    }
-
-    if (showOnboarding) {
-        OnboardingScreen(navController, updateShowOnboarding = {
-            showOnboarding = it
-        })
-    } else {
-
-        if(userRole != "admin"){ //FIXME sobald Liste unten implementiert ist
-            //Liste die auch Einträge löschen kann
-
-
-        } else{
-            HandleList(
-                navController,
-                onReportClicked,
-                listSize,
-                currentCalendarDataList = CalendarRepository.getAllData(),
-                showOnboarding = showOnboarding,
-                updateShowOnboarding = { newValue ->
-                    showOnboarding = newValue
+    LaunchedEffect (Unit){
+        viewModel.listenForScanUpdates { dataSnapshot ->
+            CalendarRepository.removeAllData()
+            dataSnapshot.children.forEach {
+                val calendarData = it.getValue(CalendarData::class.java)
+                //FIXME weil unschän
+                calendarData?.number = it.key!!.toInt()
+                if (calendarData != null) {
+                    CalendarRepository.run { addDataEntry(calendarData) }
                 }
-            )
+                listSize = CalendarRepository.getAllData().size
+            }
         }
-
-
     }
 
+        if (showOnboarding) {
+            OnboardingScreen(navController, updateShowOnboarding = {
+                showOnboarding = it
+            })
+        } else {
+
+            if(userRole != "admin"){ //FIXME sobald Liste unten implementiert ist
+                //Liste die auch Einträge löschen kann
+
+            } else{
+                //display loading indicator
+
+                if(isLoading){
+                    CircularProgressIndicator()
+                }else{
+                    HandleList(
+                        navController,
+                        isLoading,
+                        onReportClicked,
+                        listSize = calendarDataList.size,
+                        currentCalendarDataList = calendarDataList,
+                        showOnboarding = showOnboarding,
+                        updateShowOnboarding = { newValue ->
+                            showOnboarding = newValue
+                        }
+                    )
+                }
+            }
+
+
+        }
 
 }
 
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@Composable
+fun HandleList(
+    navController: NavHostController,
+    isLoading: Boolean,
+    onReportClicked: () -> Unit,
+    listSize: Int,
+    currentCalendarDataList: List<CalendarData>,
+    showOnboarding: Boolean,
+    updateShowOnboarding: (Boolean) -> Unit,
+) {
+
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+
+    var showShimmer by remember {
+        mutableStateOf(true)
+    }
+
+    var isRefreshing by remember {
+        mutableStateOf(false)
+    }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        delay(1000)
+        showShimmer = false
+        updateShowOnboarding(currentCalendarDataList.isEmpty())
+    }
+
+
+    val viewModel = viewModel<LibraryViewModel>()
+    var newListsize = 0
+
+
+    var isSuccessfullyDeleted by remember {
+        mutableStateOf(true)
+    }
+
+    Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            CenterAlignedTopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                ),
+                scrollBehavior = scrollBehavior,
+                navigationIcon = {
+                    IconButton(onClick = {
+                        navController.navigate(Destinations.MAINSCREEN_ROUTE)
+                    }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back Icon"
+                        )
+                    }
+                },
+                title = {
+                    Text(text = "Kalenderbericht")
+                },
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                modifier = Modifier.padding(8.dp),
+                onClick = {
+                    viewModel.refreshData()
+                }
+            ) {
+                Icon(Icons.Default.Refresh, contentDescription = "Refresh Icon")
+            }
+        },
+        floatingActionButtonPosition = FabPosition.End
+    ) { innerPadding ->
+        Column {
+            if (showShimmer) {
+                repeat(10) {
+                    AnimatedShimmer()
+                }
+            } else {
+                Surface(
+                    color = MaterialTheme.colorScheme.surface
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(top = innerPadding.calculateTopPadding())
+                    ) {
+
+                        PullToRefreshLazyColumn(
+                            items = currentCalendarDataList,
+                            content = { calendarData ->
+                                CalendarItem(calendarData = calendarData)
+                            },
+                            isRefreshing = isRefreshing,
+                            onRefresh = {
+                                scope.launch {
+                                    viewModel.refreshData()
+                                    //isRefreshing = false
+                                }
+                            }
+                        )
+
+                        if (isLoading){
+                            CircularProgressIndicator()
+                        }else{
+                            // display list content
+                        }
+                    }
+                }
+
+            }
+
+        }
+
+    }
+
+}
+
+
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnboardingScreen(navController: NavHostController, updateShowOnboarding: (Boolean) -> Unit) {
 
@@ -228,7 +363,7 @@ fun <T> SwipeToDeleteContainer(
 
 @Preview
 @Composable
-private fun prevHandleList(
+private fun PrevHandleList(
     navController: NavHostController = rememberNavController(),
     onReportClicked: () -> Unit = {},
     listSize: Int = 100, // Set a default list size
@@ -246,6 +381,7 @@ private fun prevHandleList(
 ) {
     HandleList(
         navController = navController,
+        isLoading = false,
         onReportClicked = onReportClicked,
         listSize = listSize,
         currentCalendarDataList = currentCalendarDataList,
@@ -255,118 +391,6 @@ private fun prevHandleList(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
-@Composable
-fun HandleList(
-    navController: NavHostController,
-    onReportClicked: () -> Unit,
-    listSize: Int,
-    currentCalendarDataList: List<CalendarData>,
-    showOnboarding: Boolean,
-    updateShowOnboarding: (Boolean) -> Unit,
-) {
-
-    val context: Context = LocalContext.current
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-
-    var showShimmer by remember {
-        mutableStateOf(true)
-    }
-
-    var isRefreshing by remember {
-        mutableStateOf(false)
-    }
-    val scope = rememberCoroutineScope()
-
-    LaunchedEffect(Unit) {
-        delay(1000)
-        showShimmer = false
-        updateShowOnboarding(currentCalendarDataList.isEmpty())
-    }
-
-
-    val viewModel = viewModel<LibraryViewModel>()
-
-
-    var isSuccessfullyDeleted by remember {
-        mutableStateOf(true)
-    }
-
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            CenterAlignedTopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                ),
-                scrollBehavior = scrollBehavior,
-                navigationIcon = {
-                    IconButton(onClick = {
-                        navController.navigate(Destinations.MAINSCREEN_ROUTE)
-                    }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back Icon"
-                        )
-                    }
-                },
-                title = {
-                    Text(text = "Kalenderbericht")
-                },
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                modifier = Modifier.padding(8.dp),
-                onClick = {
-                    isRefreshing = true
-                }
-            ) {
-                Icon(Icons.Default.Refresh, contentDescription = "Refresh Icon")
-            }
-        },
-        floatingActionButtonPosition = FabPosition.End
-    ) { innerPadding ->
-        Column {
-            if (showShimmer) {
-                repeat(10) {
-                    AnimatedShimmer()
-                }
-            } else {
-                Surface(
-                    color = MaterialTheme.colorScheme.surface
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .padding(top = innerPadding.calculateTopPadding())
-                    ) {
-
-                            PullToRefreshLazyColumn(
-                                items = currentCalendarDataList,
-                                content = { calendarData ->
-                                    CalendarItem(calendarData = calendarData)
-                                },
-                                isRefreshing = isRefreshing,
-                                onRefresh = {
-                                    scope.launch {
-                                        isRefreshing = true
-                                        delay(3000) //simulated API Call
-                                        isRefreshing = false
-                                    }
-                                }
-                            )
-
-                    }
-                }
-
-            }
-
-        }
-
-    }
-
-}
 
 @Composable
 fun CalendarItem(calendarData: CalendarData) {

@@ -74,34 +74,24 @@ fun CameraPreviewForScanning(
     val cameraController: LifecycleCameraController =
         remember { LifecycleCameraController(context) }
     var detectedText: String by remember { mutableStateOf("Keine Nummer erkannt") }
-    var validTextInfo = "❌"
-    var isValidText : Boolean by remember { mutableStateOf( false) }
+/*    var validTextInfo = "❌"
+    var isValidText : Boolean by remember { mutableStateOf( false) }*/
     var shownText: String by remember { mutableStateOf("Keine Nummer erkannt") }
     val cameraViewModel: CameraViewModel = CameraViewModel()
 
     MaterialTheme.colorScheme.surface
-    var backgroundColor: Color by remember { mutableStateOf(Color(255,255,255,)) }
+    var backgroundColor: Color by remember { mutableStateOf(Color(255,255,255)) }
 
     //
     fun onTextUpdated(updatedText: String) {
 
-
-        shownText = if (updatedText.matches(Regex("\\d{4}"))) {
-            "#$updatedText" // Add '#' if valid
+        if (updatedText != shownText) {
+            Log.d("DetectedText", "ShownText: $updatedText")
+            shownText = updatedText // Add '#' if valid
+            backgroundColor = Color(0xFF90EE90)
         } else {
-            updatedText // Keep original text if invalid
+            Log.d("DetectedText", "ShownText hasn't changed: $updatedText")
         }
-
-
-
-/*  FIXME
-detectedText = updatedText.replace("[^#0-9]*".toRegex(), "")
-        isValidText =  ("#[0-9]{4}".toRegex().matches(detectedText))
-        validTextInfo=  if (isValidText) { "✅"} else { "❌" }
-        backgroundColor = if (isValidText) { Color(0xFF90EE90) } else { Color(255,255,255,)}
-        shownText = "$detectedText $validTextInfo"
-
-        Log.d(TAG, "onTextUpdated: $detectedText $isValidText $validTextInfo")*/
     }
 
     Box(

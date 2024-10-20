@@ -13,12 +13,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
@@ -31,13 +32,7 @@ import com.jcoding.lionsweihnachtskalender.data.CalendarData
 import com.jcoding.lionsweihnachtskalender.repository.CalendarRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 private const val DATABASE_SCANS = "calendar-scans/"
 
@@ -46,16 +41,33 @@ class LibraryViewModel : ViewModel(){
 
     val database = Firebase.database
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading = _isLoading.asStateFlow()
+    private val _calendarDataList = MutableLiveData<List<CalendarData>>(emptyList())
+    val calenderDataList: LiveData<List<CalendarData>> = _calendarDataList
+
+    private val _isLoading = MutableLiveData(true)
+    val isLoading: LiveData<Boolean> = _isLoading
     var color by mutableStateOf(Color.Transparent)
         private set
 
 
-
     init {
-
-        startLoading()
+        viewModelScope.launch {
+            _isLoading.value = true
+            CalendarRepository.removeAllData()
+            listenForScanUpdates { dataSnapshot ->
+                val updatedList = mutableListOf<CalendarData>()
+                dataSnapshot.children.forEach {
+                    val calendarData = it.getValue(CalendarData::class.java)
+                    calendarData?.number = it.key!!.toInt()
+                    if (calendarData != null) {
+                        updatedList.add(calendarData)
+                        CalendarRepository.addDataEntry(calendarData)
+                    }
+                }
+                _calendarDataList.value = updatedList // Update LiveData
+                _isLoading.value = false
+            }
+        }
     }
 
 
@@ -70,11 +82,13 @@ class LibraryViewModel : ViewModel(){
             query.addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     updateScanSnapshot(snapshot)
+                    _isLoading.value = false
                 }
 
                 override fun onCancelled(error: DatabaseError) {
                     // Handle potential errors here
                     //Timber.e(error.toException(), "Error listening for scan updates")
+                    _isLoading.value = false
                 }
             })
         }
@@ -82,11 +96,23 @@ class LibraryViewModel : ViewModel(){
 
     }
 
-    fun startLoading() {
+    fun refreshData() {
         viewModelScope.launch {
             _isLoading.value = true
-            delay(3000L)
-            _isLoading.value = false
+            CalendarRepository.removeAllData()
+            listenForScanUpdates { dataSnapshot ->
+                val updatedList = mutableListOf<CalendarData>()
+                dataSnapshot.children.forEach {
+                    val calendarData = it.getValue(CalendarData::class.java)
+                    calendarData?.number = it.key!!.toInt()
+                    if (calendarData != null) {
+                        updatedList.add(calendarData)
+                        CalendarRepository.addDataEntry(calendarData)
+                    }
+                }
+                _calendarDataList.value = updatedList
+                _isLoading.value = false
+            }
         }
     }
 

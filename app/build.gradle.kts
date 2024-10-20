@@ -77,6 +77,7 @@ dependencies {
     implementation(libs.firebase.auth.ktx)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
     implementation(libs.firebase.auth)
+    implementation(libs.androidx.runtime.livedata)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
