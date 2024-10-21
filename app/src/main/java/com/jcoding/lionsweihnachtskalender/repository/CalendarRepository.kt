@@ -1,33 +1,39 @@
 package com.jcoding.lionsweihnachtskalender.repository
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.jcoding.lionsweihnachtskalender.data.CalendarData
 
 const val TAG = "CalendarRepository"
 
 object CalendarRepository {
 
-    private val calenderEntryList: MutableList<CalendarData> = mutableListOf()
+    private val _calendarDataList = MutableLiveData<List<CalendarData>>(emptyList())
+    var calenderDataList: LiveData<List<CalendarData>> = _calendarDataList
+    var updatedList = mutableListOf<CalendarData>()
 
-
+    fun refresh() {
+        _calendarDataList.value = updatedList
+    }
     fun getAllData(): List<CalendarData> {
-        return calenderEntryList
+        return updatedList
     }
 
     fun removeAllData() {
-        calenderEntryList.clear()
+        updatedList = mutableListOf<CalendarData>()
     }
 
     fun addDataEntry(calendarData: CalendarData) {
-        calenderEntryList.add(calendarData)
+        updatedList.add(calendarData)
     }
 
     fun removeDataEntry(calendarData: CalendarData, calendarNumber: Int): Boolean {
 
-        val index = calenderEntryList.indexOf(calendarData)
-        if (index in calenderEntryList.indices) {
-            if (index >= 0 && index < calenderEntryList.size) {
-                calenderEntryList.removeAt(index)
+        val index = updatedList.indexOf(calendarData)
+        if (index in updatedList.indices) {
+            if (index >= 0 && index < updatedList.size) {
+                updatedList.removeAt(index)
                 return true
             } else return false
         } else {
@@ -37,7 +43,7 @@ object CalendarRepository {
     }
 
     fun containsNumber(number: Int): Boolean {
-        for (calendarData in calenderEntryList) {
+        for (calendarData in updatedList) {
             if (calendarData.number == number) {
                 return true
             }
@@ -46,7 +52,7 @@ object CalendarRepository {
     }
 
     fun getCalendarDataByNumber(number: Int): CalendarData {
-        for (calendarData in calenderEntryList) {
+        for (calendarData in updatedList) {
             if (calendarData.number == number) {
                 return calendarData
             }

@@ -97,26 +97,26 @@ fun LibraryScreen(
     var showOnboarding by remember { mutableStateOf(false) }
 
     val viewModel = viewModel<LibraryViewModel>()
-    val calendarDataList by viewModel.calenderDataList.observeAsState(emptyList())
-    val isLoading by viewModel.isLoading.observeAsState(true)
+    val calendarDataList by CalendarRepository.calenderDataList.observeAsState(emptyList())
+    val isLoading by viewModel.isLoading.observeAsState(false)
 
     var listSize = 0
 
     val userRole = UserRepository.getManagedUser().role
 
     LaunchedEffect (Unit){
-        viewModel.listenForScanUpdates { dataSnapshot ->
+        /*viewModel.listenForScanUpdates { dataSnapshot ->
             CalendarRepository.removeAllData()
             dataSnapshot.children.forEach {
                 val calendarData = it.getValue(CalendarData::class.java)
-                //FIXME weil unschän
+                //FIXME weil unschön
                 calendarData?.number = it.key!!.toInt()
                 if (calendarData != null) {
                     CalendarRepository.run { addDataEntry(calendarData) }
                 }
                 listSize = CalendarRepository.getAllData().size
             }
-        }
+        }*/
     }
 
         if (showOnboarding) {
@@ -136,7 +136,8 @@ fun LibraryScreen(
                 }else{
                     HandleList(
                         navController,
-                        isLoading,
+                        // isLoading,
+                        false,
                         onReportClicked,
                         listSize = calendarDataList.size,
                         currentCalendarDataList = calendarDataList,
@@ -251,12 +252,12 @@ fun HandleList(
                             onRefresh = {
                                 scope.launch {
                                     viewModel.refreshData()
-                                    //isRefreshing = false
+                                    isRefreshing = false
                                 }
                             }
                         )
 
-                        if (isLoading){
+                        if (!isLoading){
                             CircularProgressIndicator()
                         }else{
                             // display list content

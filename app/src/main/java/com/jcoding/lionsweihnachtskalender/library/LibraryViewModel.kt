@@ -44,14 +44,14 @@ class LibraryViewModel : ViewModel(){
     private val _calendarDataList = MutableLiveData<List<CalendarData>>(emptyList())
     val calenderDataList: LiveData<List<CalendarData>> = _calendarDataList
 
-    private val _isLoading = MutableLiveData(true)
+    private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
     var color by mutableStateOf(Color.Transparent)
         private set
 
 
     init {
-        viewModelScope.launch {
+        /* viewModelScope.launch {
             _isLoading.value = true
             CalendarRepository.removeAllData()
             listenForScanUpdates { dataSnapshot ->
@@ -67,7 +67,7 @@ class LibraryViewModel : ViewModel(){
                 _calendarDataList.value = updatedList // Update LiveData
                 _isLoading.value = false
             }
-        }
+        } */
     }
 
 
@@ -77,7 +77,7 @@ class LibraryViewModel : ViewModel(){
         val scansRef: DatabaseReference = database.getReference(DATABASE_SCANS)
         val query = scansRef.orderByChild("timestamp")
 
-        // Use a CoroutineScope to handle asynchronousoperations
+        // Use a CoroutineScope to handle asynchronous operations
         CoroutineScope(Dispatchers.IO).launch {
             query.addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -101,6 +101,7 @@ class LibraryViewModel : ViewModel(){
             _isLoading.value = true
             CalendarRepository.removeAllData()
             listenForScanUpdates { dataSnapshot ->
+                /*
                 val updatedList = mutableListOf<CalendarData>()
                 dataSnapshot.children.forEach {
                     val calendarData = it.getValue(CalendarData::class.java)
@@ -110,7 +111,7 @@ class LibraryViewModel : ViewModel(){
                         CalendarRepository.addDataEntry(calendarData)
                     }
                 }
-                _calendarDataList.value = updatedList
+                _calendarDataList.value = updatedList */
                 _isLoading.value = false
             }
         }
