@@ -169,8 +169,7 @@ fun SignInContent(
 
             val onSubmit = {
                 if (emailState.isValid && passwordState.isValid) {
-
-                    onSignInSubmitted(emailState.text, passwordState.text)
+                    onSignInSubmitted(emailState.text.trim(), passwordState.text)
                 }
             }
             Password(

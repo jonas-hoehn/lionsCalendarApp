@@ -132,9 +132,9 @@ fun Email(
     onImeAction: () -> Unit = {}
 ) {
     OutlinedTextField(
-        value = emailState.text,
+        value = emailState.text.trim(),
         onValueChange = {
-            emailState.text = it
+            emailState.text = it.trim()
         },
         label = {
             Text(
@@ -177,9 +177,9 @@ fun Password(
 ) {
     val showPassword = rememberSaveable { mutableStateOf(false) }
     OutlinedTextField(
-        value = passwordState.text,
+        value = passwordState.text.trim(),
         onValueChange = {
-            passwordState.text = it
+            passwordState.text = it.trim()
             passwordState.enableShowErrors()
         },
         modifier = modifier

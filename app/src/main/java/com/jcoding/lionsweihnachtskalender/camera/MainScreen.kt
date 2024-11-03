@@ -16,7 +16,9 @@ import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
@@ -26,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -33,6 +36,7 @@ import com.jcoding.lionsweihnachtskalender.signinsignup.UserRepository
 import com.jcoding.lionsweihnachtskalender.Destinations
 import com.jcoding.lionsweihnachtskalender.data.MainCameraViewModel
 import com.jcoding.lionsweihnachtskalender.overview.OverviewScreen
+import com.jcoding.lionsweihnachtskalender.signinsignup.User
 
 @Composable
 fun MainScreen(
@@ -64,7 +68,7 @@ private fun MainScreenContent(
 ){
 
     val scope = rememberCoroutineScope()
-
+    val user by UserRepository.managedUser.collectAsState()
 
     val bottomSheetState = rememberStandardBottomSheetState(
         initialValue = SheetValue.PartiallyExpanded,
@@ -119,7 +123,16 @@ private fun MainScreenContent(
             modifier = Modifier
                 .fillMaxSize()
             )
-
+            if (user is User.LoggedInUser) {
+                Text(
+                    text = "${user.displayName} (${user.role})",
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .padding(top = 24.dp)
+                        .fillMaxWidth()
+                )
+            }
             IconButton(
                 onClick = {
                     UserRepository.signOut()

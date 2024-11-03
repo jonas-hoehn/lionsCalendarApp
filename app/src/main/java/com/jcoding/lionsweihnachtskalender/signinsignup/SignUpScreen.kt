@@ -96,7 +96,7 @@ fun SignUpContent(
         Password(
             label = stringResource(id = R.string.confirm_password),
             passwordState = confirmPasswordState,
-            onImeAction = { onSignUpSubmitted(emailState.text, passwordState.text) },
+            onImeAction = { onSignUpSubmitted(emailState.text.trim(), passwordState.text.trim()) },
             modifier = Modifier.focusRequester(confirmationPasswordFocusRequest)
         )
 
@@ -109,7 +109,7 @@ fun SignUpContent(
 
         Spacer(modifier = Modifier.height(16.dp))
         Button(
-            onClick = { onSignUpSubmitted(emailState.text, passwordState.text) },
+            onClick = { onSignUpSubmitted(emailState.text.trim(), passwordState.text) },
             modifier = Modifier.fillMaxWidth(),
             enabled = emailState.isValid &&
                 passwordState.isValid && confirmPasswordState.isValid
