@@ -87,20 +87,9 @@ fun LibraryScreen(
     val isLoading by viewModel.isLoading.observeAsState(false)
 
     val userRole = UserRepository.getManagedUser().role
+    val userDisplayName = UserRepository.getManagedUser().displayName
 
     LaunchedEffect (Unit){
-        /*viewModel.listenForScanUpdates { dataSnapshot ->
-            CalendarRepository.removeAllData()
-            dataSnapshot.children.forEach {
-                val calendarData = it.getValue(CalendarData::class.java)
-                //FIXME weil unschön
-                calendarData?.number = it.key!!.toInt()
-                if (calendarData != null) {
-                    CalendarRepository.run { addDataEntry(calendarData) }
-                }
-                listSize = CalendarRepository.getAllData().size
-            }
-        }*/
     }
 
         if (showOnboarding) {
@@ -108,12 +97,8 @@ fun LibraryScreen(
                 showOnboarding = it
             })
         } else {
-
-            if(userRole != "admin"){ //FIXME sobald Liste unten implementiert ist
-                //Liste die auch Einträge löschen kann
-
-            } else{
-                //display loading indicator
+            val filteredList = if (userRole == "user") calendarDataList.filter { it.cashier == userDisplayName } else calendarDataList
+            if (userRole == "admin" || userRole == "user") {
                 if(isLoading){
                     CircularProgressIndicator()
                 }else{
@@ -122,8 +107,8 @@ fun LibraryScreen(
                         // isLoading,
                         false,
                         onReportClicked,
-                        listSize = calendarDataList.size,
-                        currentCalendarDataList = calendarDataList,
+                        listSize = filteredList.size,
+                        currentCalendarDataList = filteredList,
                         showOnboarding = showOnboarding,
                         updateShowOnboarding = { newValue ->
                             showOnboarding = newValue
