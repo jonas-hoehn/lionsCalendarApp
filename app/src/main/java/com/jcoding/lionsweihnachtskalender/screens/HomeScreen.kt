@@ -117,6 +117,7 @@ fun HomeScreen(
             onHomeClicked = {},
             onLogoutClicked = {},
             onReportClicked = {},
+            onNavUp = {}
         )
     }
 }

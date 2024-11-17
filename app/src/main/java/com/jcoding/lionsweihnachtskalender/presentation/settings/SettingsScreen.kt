@@ -10,25 +10,33 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,7 +68,7 @@ fun SettingsScreen(
         topBar = {
             HeaderText(navController)
         },
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = MaterialTheme.colorScheme.surface,
         content = { contentPadding ->
             Column (
                 modifier = Modifier.padding(contentPadding)
@@ -115,32 +123,40 @@ fun OrLogoutFromAppInSettings(
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HeaderText(
-    navController: NavHostController
+    navController: NavHostController,
+    onNavUp: () -> Unit = {},
+    topAppBarText: String = stringResource(id = R.string.settings)
 ) {
-    IconButton(
-        onClick = {
-            //TODO navigiere zum Homescreen
-            navController.navigate(Destinations.MAINSCREEN_ROUTE)
+
+    CenterAlignedTopAppBar(
+        title = {
+            Text(
+                text = "Einstellungen",
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 16.sp
+            )
         },
-        modifier = Modifier.padding(top = 20.dp)
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_home),
-            contentDescription = "",
-            tint = MaterialTheme.colorScheme.primary
-        )
-    }
-    Text(
-        text = "Einstellungen",
-        color = MaterialTheme.colorScheme.primary,
-        textAlign = TextAlign.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 30.dp, bottom = 10.dp),
-        fontWeight = FontWeight.ExtraBold,
-        fontSize = 16.sp
+        navigationIcon = {
+            androidx.compose.material3.IconButton(onClick = onNavUp) {
+                Icon(
+                    imageVector = Icons.Filled.Home,
+                    contentDescription = stringResource(id = R.string.back),
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        },
+        // We need to balance the navigation icon, so we add a spacer.
+        actions = {
+            Spacer(modifier = Modifier.width(68.dp))
+        },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(MaterialTheme.colorScheme.surfaceContainer)
     )
 }
 
@@ -153,7 +169,7 @@ fun ProfileCardUI(
             .fillMaxWidth()
             .height(150.dp)
             .padding(10.dp),
-        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainer),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainerHigh),
         elevation = CardDefaults.cardElevation(2.dp),
         shape = CardDefaults.elevatedShape
     ) {

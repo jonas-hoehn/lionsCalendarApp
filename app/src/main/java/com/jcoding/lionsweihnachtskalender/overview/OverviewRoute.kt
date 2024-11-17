@@ -15,5 +15,6 @@ fun OverviewRoute(
         onReportClicked = onReportClicked,
         onLogoutClicked = onLogoutClicked,
         onHomeClicked = onHomeClicked,
+        onNavUp = {}
     )
 }

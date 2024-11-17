@@ -31,4 +31,5 @@
     <string name="requestAccountDetail">Bitte melden Sie sich unter der Mailadresse:</string>
     <string name="go_to_settings">Öffne Einstellungen</string>
     <string name="refresh">Aktualisieren</string>
+    <string name="profileSettings">Profileinstellungen</string>
 </resources>

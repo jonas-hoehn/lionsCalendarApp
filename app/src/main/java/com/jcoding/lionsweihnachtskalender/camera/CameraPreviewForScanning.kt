@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material.SnackbarDuration
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -72,8 +72,9 @@ fun CameraPreviewForScanning(
     val context: Context = LocalContext.current
     val cameraController: LifecycleCameraController =
         remember { LifecycleCameraController(context) }
-    val detectedText: String by remember { mutableStateOf("Keine Nummer erkannt") }
+    var detectedText: String by remember { mutableStateOf("Keine Nummer erkannt") }
     var shownText: String by remember { mutableStateOf("Keine Nummer erkannt") }
+    val cameraViewModel: CameraViewModel = CameraViewModel()
 
     MaterialTheme.colorScheme.surface
     var backgroundColor: Color by remember { mutableStateOf(Color(255,255,255)) }
@@ -130,91 +131,15 @@ fun CameraPreviewForScanning(
             ),
             style = MaterialTheme.typography.headlineSmall.copy(),
             onClick = {
-                val calendarNumber = shownText.drop(1)
-                try {
-                    val number = Integer.parseInt(calendarNumber)
-                    if (CalendarRepository.containsNumber(number)) {
-                        val cd = CalendarRepository.getCalendarDataByNumber(number)
-                        scope.launch {
-                            snackbarHostState.showSnackbar(
-                                message = "Kein Rabatt mehr möglich. Die Nummer ${cd.number } wurde am ${cd.date} um ${cd.time} schon verwendet (KassiererIn: ${cd.cashier}). Wenden Sie sich bei Fragen an die Kassenaufsicht.",
-                                actionLabel = "Okay!",
-                                duration =  SnackbarDuration.Indefinite
-                            )
-                        }
-                    } else {
-                        scope.launch {
-                            snackbarHostState.showSnackbar(
-                                message = "Erfolgreiche Erfassung. Die Nummer ${number} wurde soeben für einen Rabatt eingelöst.",
-                                actionLabel = "Okay!",
-                                duration =  SnackbarDuration.Indefinite
-                            )
-                        }
-                        writeCalendarScan(
-                            number,
-                            UserRepository.getManagedUser().displayName.toString()
-                        )
-                        Toast.makeText(
-                            context,
-                            "Der Kalender wurde erfasst. Bitte jetzt über die Kasse scannen.",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        navController.navigate(Destinations.REPORT_ROUTE)
-                    }
-                } catch (e: NumberFormatException) {
-                    Toast.makeText(
-                        context,
-                        "$e $detectedText ist KEINE valide Kalendernummer",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-
-
-/*                if (isValidText) {
-                    // remove first character
-                    detectedText = detectedText.drop(1)
-
-                    // FIXME an den anderen Stellen, wo die Nummer eingelöst werden kann,
-                    // wenn möglich nicht den Code duplizieren, sondern den Code in eine Funktion auslagern
-                    try {
-                        val number = Integer.parseInt(detectedText)
-                        if (CalendarRepository.containsNumber(number)) {
-                            val cd = CalendarRepository.getCalendarDataByNumber(number)
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    message = "Kein Rabatt mehr möglich. Die Nummer ${cd.number } wurde am ${cd.date} um ${cd.time} schon verwendet (KassiererIn: ${cd.cashier}). Wenden Sie sich bei Fragen an die Kassenaufsicht.",
-                                    actionLabel = "Okay!"
-                                )
-                                // FIXME: sollte erst zugehen, wenn ok gedrückt wird
-                            }
-                            scope.launch {
-
-                                cameraViewModel.eventFlow.collectLatest {
-                                    when(it){
-                                        is CameraViewModel.UIEvent.ShowSnackbar -> {
-                                            snackbarHostState.showSnackbar(
-                                                message = it.message,
-                                                actionLabel = "Okay!"
-                                            )
-                                }}
-                            }}
-                        } else
-                        {
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    message = "${number} verwendet",
-                                    actionLabel = "Okay!"
-                                )
-                            }
-                            writeCalendarScan(number, UserRepository.getManagedUser().displayName.toString())
-                            Toast.makeText(context, "Der Kalender wurde erfasst. Bitte jetzt über die Kasse scannen.", Toast.LENGTH_LONG).show()
-                            navController.navigate(Destinations.REPORT_ROUTE)
-                        }
-
-                    } catch (e: NumberFormatException) {
-                        Toast.makeText(context, "$e $detectedText ist KEINE valide Kalendernummer", Toast.LENGTH_LONG).show()
-                    }
-                }*/
+               // onClick()
+                Log.d("ClickableText", "Clicked")
+                Toast.makeText(context, "Clicked", Toast.LENGTH_LONG).show()
+                cameraViewModel.handleCalendarScan(
+                    shownText,
+                    snackbarHostState,
+                    navController,
+                    context
+                )
             },
             maxLines = 1
         )
@@ -242,7 +167,7 @@ private fun CameraPreviewForScanningPrev() {
 // FIXME: Sollte eigentlich eine eigene Action sein (!)
 fun writeCalendarScan(number: Int, cashier: String){
     val myRef = database.getReference("calendar-scans/$number")
-    val now = Date()
+    val now: Date = Date()
     var formatter = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
     val formattedDate = formatter.format(now)
     formatter = SimpleDateFormat("HH:mm:ss", Locale.getDefault())

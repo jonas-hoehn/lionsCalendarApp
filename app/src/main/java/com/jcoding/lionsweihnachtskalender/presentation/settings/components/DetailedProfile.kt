@@ -6,25 +6,35 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -65,36 +75,40 @@ fun DetailedProfileScreenPreview() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HeaderText() {
+fun HeaderText(
+    onNavUp: () -> Unit = {},
+    topAppBarText: String = stringResource(id = R.string.profileSettings)
+) {
 
-    Row (
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.surfaceContainer),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconButton(
-            onClick = {
-                //TODO navigiere zum Homescreen
-            },
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_back_arrow),
-                contentDescription = "",
-                tint = MaterialTheme.colorScheme.onSurface
+    CenterAlignedTopAppBar(
+        title = {
+            Text(
+                text = topAppBarText,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 16.sp
             )
-        }
-        Text(
-            text = "Mein Profil",
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 30.dp, bottom = 10.dp),
-            fontWeight = FontWeight.ExtraBold,
-            fontSize = 16.sp
-        )
-    }
+        },
+        navigationIcon = {
+            androidx.compose.material3.IconButton(onClick = onNavUp) {
+                Icon(
+                    imageVector = Icons.Filled.ChevronLeft,
+                    contentDescription = stringResource(id = R.string.back),
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        },
+        // We need to balance the navigation icon, so we add a spacer.
+        actions = {
+            Spacer(modifier = Modifier.width(68.dp))
+        },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(MaterialTheme.colorScheme.surfaceContainer)
+    )
 
 }
 

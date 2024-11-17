@@ -44,7 +44,8 @@ fun MainScreen(
     modifier: Modifier,
     onReportClicked: () -> Unit,
     onLogoutClicked: () -> Unit,
-    onHomeClicked: () -> Unit
+    onHomeClicked: () -> Unit,
+    onNavUp: () -> Unit
 ) {
 
     MainScreenContent(
@@ -52,7 +53,8 @@ fun MainScreen(
         modifier,
         onReportClicked = onReportClicked,
         onLogoutClicked = onLogoutClicked,
-        onHomeClicked = onHomeClicked
+        onHomeClicked = onHomeClicked,
+        onNavUp = onNavUp
     )
 }
 
@@ -64,7 +66,8 @@ private fun MainScreenContent(
     modifier : Modifier = Modifier,
     onHomeClicked: () -> Unit,
     onReportClicked: () -> Unit,
-    onLogoutClicked: () -> Unit
+    onLogoutClicked: () -> Unit,
+    onNavUp: () -> Unit,
 ){
 
     val scope = rememberCoroutineScope()
@@ -105,7 +108,8 @@ private fun MainScreenContent(
                     navHostController = navHostController,
                     onReportClicked = onReportClicked,
                     onLogoutClicked = onLogoutClicked,
-                    onHomeClicked = onHomeClicked
+                    onHomeClicked = onHomeClicked,
+                    onNavUp = onNavUp
                 )
             }
 

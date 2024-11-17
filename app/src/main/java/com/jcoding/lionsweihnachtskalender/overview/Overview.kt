@@ -9,12 +9,15 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.SnackbarHost
+import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Check
@@ -53,6 +56,7 @@ import com.jcoding.lionsweihnachtskalender.signinsignup.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.jcoding.lionsweihnachtskalender.Destinations
 import com.jcoding.lionsweihnachtskalender.R
+import com.jcoding.lionsweihnachtskalender.camera.CameraViewModel
 import com.jcoding.lionsweihnachtskalender.library.OrGoToReport
 import com.jcoding.lionsweihnachtskalender.camera.writeCalendarScan
 
@@ -65,6 +69,7 @@ fun OverviewScreen(
     onReportClicked: () -> Unit,
     onLogoutClicked: () -> Unit,
     onHomeClicked: () -> Unit,
+    onNavUp: () -> Unit
 ) {
 
 
@@ -113,11 +118,18 @@ fun ManualInput(
     navHostController: NavHostController
 ) {
 
+    //Snackbar
+    val snackbarHostState = remember {
+        SnackbarHostState()
+    }
+
     var text by remember {
         mutableStateOf("")
     }
     val maxChar = 4
     val context = LocalContext.current
+
+    val cameraViewModel: CameraViewModel = CameraViewModel()
 
     OutlinedTextField(
         modifier = Modifier
@@ -135,12 +147,14 @@ fun ManualInput(
         trailingIcon = {
             if (text.length == maxChar) {
                 IconButton(onClick = {
-                    // Fixme -> Check wi bei CameraPreviewForScanning -> CLickableText.onClick
-                    writeCalendarScan(
-                        Integer.parseInt(text),
-                        UserRepository.getManagedUser().displayName.toString()
+                    //TODO Kalender hinzufügen
+                    Log.d("TrailingIconOverview", "Calendar number is $text and clicked")
+                    cameraViewModel.handleCalendarScan(
+                        text,
+                        snackbarHostState,
+                        navHostController,
+                        context
                     )
-                    navHostController.navigate(Destinations.MAINSCREEN_ROUTE)
                 }) {
                     Icon(
                         imageVector = Icons.Filled.Check,
@@ -167,12 +181,21 @@ fun ManualInput(
         ),
         keyboardActions = KeyboardActions(
             onDone = {
-                // Fixme -> Check wie bei CameraPreviewForScanning -> CLickableText.onClick
-                writeCalendarScan(Integer.parseInt(text), UserRepository.getManagedUser().displayName.toString())
-                navHostController.navigate(Destinations.MAINSCREEN_ROUTE)
+                cameraViewModel.handleCalendarScan(
+                    text,
+                    snackbarHostState,
+                    navHostController,
+                    context
+                )
                 Log.d("ImeAction", "clicked")
             }
         ),
+    )
+
+    SnackbarHost(
+        hostState = snackbarHostState,
+        modifier = Modifier.padding(bottom = 32.dp)
+            .offset(y = 80.dp)
     )
 }
 
@@ -300,6 +323,7 @@ private fun OverviewScreenPrev() {
             onReportClicked = {},
             onLogoutClicked = {},
             onHomeClicked = {},
+            onNavUp = {}
         )
     }
 

@@ -4,6 +4,7 @@ package com.jcoding.lionsweihnachtskalender
 
 import SettingsScreen
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -54,10 +55,14 @@ fun MainApplicationNavHost(
     navController: NavHostController = rememberNavController()
 ) {
 
+
+
     NavHost(
         navController = navController,
         startDestination = WELCOME_ROUTE
     ) {
+
+
 
         composable(WELCOME_ROUTE) {
             WelcomeRoute(
@@ -94,7 +99,11 @@ fun MainApplicationNavHost(
                 email = startingEmail,
                 onSignInSubmitted = {
                     if (UserRepository.getManagedUser() is User.LoggedInUser) {
-                        navController.navigate(MAINSCREEN_ROUTE)
+                        navController.navigate(MAINSCREEN_ROUTE) {
+                            popUpTo(MAINSCREEN_ROUTE) {
+                                inclusive = true
+                            }
+                        }
                     } else {
                         Toast.makeText(
                             navController.context,
@@ -140,7 +149,8 @@ fun MainApplicationNavHost(
                 },
                 onLogoutClicked = {
                     navController.navigate(OVERVIEW_ROUTE)
-                }
+                },
+                onNavUp = navController::navigateUp
             )
         }
 
@@ -171,7 +181,6 @@ fun MainApplicationNavHost(
                 }
             )
         }
-
         composable(NO_ACC_PERM){
             NoAccountPermissionScreen(
                 onNavUp = navController::navigateUp
