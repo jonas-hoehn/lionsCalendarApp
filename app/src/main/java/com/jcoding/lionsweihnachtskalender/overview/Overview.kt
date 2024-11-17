@@ -32,6 +32,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -130,6 +132,7 @@ fun ManualInput(
     val context = LocalContext.current
 
     val cameraViewModel: CameraViewModel = CameraViewModel()
+    val focusManager = LocalFocusManager.current
 
     OutlinedTextField(
         modifier = Modifier
@@ -146,11 +149,15 @@ fun ManualInput(
         },
         trailingIcon = {
             if (text.length == maxChar) {
+                // hide keyboard display
+
                 IconButton(onClick = {
+                    focusManager.clearFocus()
+
                     //TODO Kalender hinzufügen
                     Log.d("TrailingIconOverview", "Calendar number is $text and clicked")
                     cameraViewModel.handleCalendarScan(
-                        text,
+                        "#"+text,
                         snackbarHostState,
                         navHostController,
                         context
@@ -164,6 +171,7 @@ fun ManualInput(
             } else {
                 IconButton(onClick = {
                     Log.d("Trailing Icon", "Clicked")
+                    focusManager.clearFocus()
                     Toast.makeText(context, "Bitte vier Zahlen eingeben.", Toast.LENGTH_LONG)
                         .show()
                 }) {
@@ -182,7 +190,7 @@ fun ManualInput(
         keyboardActions = KeyboardActions(
             onDone = {
                 cameraViewModel.handleCalendarScan(
-                    text,
+                    "#"+text,
                     snackbarHostState,
                     navHostController,
                     context
@@ -194,7 +202,8 @@ fun ManualInput(
 
     SnackbarHost(
         hostState = snackbarHostState,
-        modifier = Modifier.padding(bottom = 32.dp)
+        modifier = Modifier
+            .padding(bottom = 32.dp)
             .offset(y = 80.dp)
     )
 }
@@ -234,7 +243,8 @@ fun OptionsMenu(
 }
 
 @Composable
-fun OrLogoutFromApp(onLogoutClicked: () -> Unit,
+fun OrLogoutFromApp(
+    onLogoutClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     auth = FirebaseAuth.getInstance()
@@ -286,8 +296,8 @@ private fun Branding(modifier: Modifier = Modifier) {
                 style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
-                .padding(top = 24.dp)
-                .fillMaxWidth()
+                    .padding(top = 24.dp)
+                    .fillMaxWidth()
             )
         }
     }
