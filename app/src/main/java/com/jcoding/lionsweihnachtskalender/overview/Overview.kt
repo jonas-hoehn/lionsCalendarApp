@@ -130,7 +130,7 @@ fun ManualInput(
             }
         },
         placeholder = {
-            Text(text = "Vierstellige Pin-Nummer eingeben")
+            Text(text = "Vierstellige Kalender-Nummer manuell erfassen (ohne Scannen)")
         },
         trailingIcon = {
             if (text.length == maxChar) {

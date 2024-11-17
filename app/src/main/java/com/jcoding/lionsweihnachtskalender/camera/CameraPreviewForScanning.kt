@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material.SnackbarDuration
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material3.MaterialTheme
@@ -32,7 +33,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -46,7 +46,6 @@ import com.google.firebase.database.database
 import com.jcoding.lionsweihnachtskalender.Destinations
 import com.jcoding.lionsweihnachtskalender.data.CalendarData
 import com.jcoding.lionsweihnachtskalender.repository.CalendarRepository
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -73,9 +72,8 @@ fun CameraPreviewForScanning(
     val context: Context = LocalContext.current
     val cameraController: LifecycleCameraController =
         remember { LifecycleCameraController(context) }
-    var detectedText: String by remember { mutableStateOf("Keine Nummer erkannt") }
+    val detectedText: String by remember { mutableStateOf("Keine Nummer erkannt") }
     var shownText: String by remember { mutableStateOf("Keine Nummer erkannt") }
-    val cameraViewModel: CameraViewModel = CameraViewModel()
 
     MaterialTheme.colorScheme.surface
     var backgroundColor: Color by remember { mutableStateOf(Color(255,255,255)) }
@@ -140,14 +138,16 @@ fun CameraPreviewForScanning(
                         scope.launch {
                             snackbarHostState.showSnackbar(
                                 message = "Kein Rabatt mehr möglich. Die Nummer ${cd.number } wurde am ${cd.date} um ${cd.time} schon verwendet (KassiererIn: ${cd.cashier}). Wenden Sie sich bei Fragen an die Kassenaufsicht.",
-                                actionLabel = "Okay!"
+                                actionLabel = "Okay!",
+                                duration =  SnackbarDuration.Indefinite
                             )
                         }
                     } else {
                         scope.launch {
                             snackbarHostState.showSnackbar(
-                                message = "${number} verwendet",
-                                actionLabel = "Okay!"
+                                message = "Erfolgreiche Erfassung. Die Nummer ${number} wurde soeben für einen Rabatt eingelöst.",
+                                actionLabel = "Okay!",
+                                duration =  SnackbarDuration.Indefinite
                             )
                         }
                         writeCalendarScan(
@@ -222,7 +222,8 @@ fun CameraPreviewForScanning(
 
     SnackbarHost(
         hostState = snackbarHostState,
-        modifier = Modifier.padding(bottom = 16.dp)
+        modifier = Modifier.padding(bottom = 32.dp)
+            .offset(y = 80.dp)
     )
 
 }
@@ -241,7 +242,7 @@ private fun CameraPreviewForScanningPrev() {
 // FIXME: Sollte eigentlich eine eigene Action sein (!)
 fun writeCalendarScan(number: Int, cashier: String){
     val myRef = database.getReference("calendar-scans/$number")
-    val now: Date = Date()
+    val now = Date()
     var formatter = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
     val formattedDate = formatter.format(now)
     formatter = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
