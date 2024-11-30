@@ -98,7 +98,8 @@ fun MainApplicationNavHost(
             SignInRoute(
                 email = startingEmail,
                 onSignInSubmitted = {
-                    if (UserRepository.getManagedUser() is User.LoggedInUser) {
+                    val loggedInUser = UserRepository.getManagedUser()
+                    if (loggedInUser is User.LoggedInUser && loggedInUser.hasValidUserRole()) {
                         navController.navigate(MAINSCREEN_ROUTE) {
                             popUpTo(MAINSCREEN_ROUTE) {
                                 inclusive = true

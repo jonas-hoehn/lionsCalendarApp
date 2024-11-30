@@ -26,6 +26,10 @@ sealed class User(open val email: String = "", open val uid: String? = null, ope
         constructor() : this("", null, null, null)
     }
 
+    fun hasValidUserRole() : Boolean {
+        return role == "admin" || role == "user"
+    }
+
     object GuestUser : User()
     object NoUserLoggedIn : User()
 }
